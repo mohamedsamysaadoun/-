@@ -935,6 +935,18 @@ function toast(msg, type = 'info') {
 }
 
 // ════════════════════════════════════════════════════════════
+//  Security helpers
+// ════════════════════════════════════════════════════════════
+function escHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ════════════════════════════════════════════════════════════
 //  API helpers
 // ════════════════════════════════════════════════════════════
 async function api(path, opts = {}) {
@@ -1246,21 +1258,30 @@ function nowTime() {
   return new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
 }
 
-function appendMsg(role, text, extra = '') {
+function appendMsg(role, text, extra = '', domExtra = null) {
   const box = document.getElementById('chat-messages');
   const div = document.createElement('div');
   div.className = `chat-msg ${role === 'user' ? 'user' : 'ai'}`;
-  div.innerHTML = `
-    <div class="chat-bubble">${escHtml(text)}</div>
-    ${extra}
-    <span class="chat-time">${nowTime()}</span>`;
+  // Build bubble and time safely
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble';
+  bubble.textContent = text;
+  const timeSpan = document.createElement('span');
+  timeSpan.className = 'chat-time';
+  timeSpan.textContent = nowTime();
+  div.appendChild(bubble);
+  // Append extra: DOM element takes priority over string
+  if (domExtra instanceof Element) {
+    div.appendChild(domExtra);
+  } else if (extra) {
+    const extraEl = document.createElement('div');
+    extraEl.innerHTML = extra; // only used for trusted internal HTML (e.g. video player)
+    div.appendChild(extraEl);
+  }
+  div.appendChild(timeSpan);
   box.appendChild(div);
   box.scrollTop = box.scrollHeight;
   return div;
-}
-
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 let chatTypingEl = null;
@@ -1292,16 +1313,26 @@ async function sendChat() {
     let extra = '';
     if (d.make_reel && d.reel_params) {
       const p = d.reel_params;
-      extra = `<div class="chat-reel-card">
-        <div style="font-weight:700;color:var(--gold);margin-bottom:8px;">🎬 تم اكتشاف طلب ريلز</div>
-        <div style="font-size:.82rem;color:var(--text-muted);margin-bottom:10px;">
-          سورة ${p.surah_number || '—'} • ${p.reciter || '—'}
-        </div>
-        <button class="btn btn-gold" style="font-size:.83rem;padding:8px 16px;"
-                onclick="triggerChatReel(${JSON.stringify(p).replace(/"/g,'&quot;')})">
-          🎬 توليد الآن
-        </button>
-      </div>`;
+      // Build card safely via DOM to avoid XSS from model-controlled reel_params fields
+      const card = document.createElement('div');
+      card.className = 'chat-reel-card';
+      const title = document.createElement('div');
+      title.style.cssText = 'font-weight:700;color:var(--gold);margin-bottom:8px;';
+      title.textContent = '🎬 تم اكتشاف طلب ريلز';
+      const info = document.createElement('div');
+      info.style.cssText = 'font-size:.82rem;color:var(--text-muted);margin-bottom:10px;';
+      info.textContent = `سورة ${p.surah_number || '—'} • ${p.reciter || '—'}`;
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-gold';
+      btn.style.cssText = 'font-size:.83rem;padding:8px 16px;';
+      btn.textContent = '🎬 توليد الآن';
+      btn.addEventListener('click', () => triggerChatReel(p));
+      card.appendChild(title);
+      card.appendChild(info);
+      card.appendChild(btn);
+      appendMsg('ai', d.reply || 'لا يوجد رد', null, card);
+      if (chatTypingEl) { chatTypingEl.remove(); chatTypingEl = null; }
+      return;
     }
 
     appendMsg('ai', d.reply || 'لا يوجد رد', extra);

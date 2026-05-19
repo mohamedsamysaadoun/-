@@ -14,10 +14,11 @@ OUTPUT_DIR = os.path.join(BOT_DIR, 'output')
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # ── FastAPI imports ───────────────────────────────────────────────────────────
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request, Security
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security.api_key import APIKeyHeader
 from pydantic import BaseModel
 import uvicorn
 
@@ -226,6 +227,18 @@ def _get_surah_ar(num: int) -> str:
     return SURAH_AR_FALLBACK.get(num, f'سورة {num}')
 
 
+# ── Optional API key auth ────────────────────────────────────────────────────
+# If DASHBOARD_API_KEY env var is set, all /api/bot/action calls require
+# the matching X-API-Key header. Unset = no auth (local use).
+_API_KEY = os.environ.get('DASHBOARD_API_KEY', '')
+_api_key_header = APIKeyHeader(name='X-API-Key', auto_error=False)
+
+
+def _require_auth(api_key: Optional[str] = None):
+    if _API_KEY and api_key != _API_KEY:
+        raise HTTPException(status_code=403, detail='Invalid or missing X-API-Key header')
+
+
 # ── Routes ────────────────────────────────────────────────────────────────────
 
 @app.get('/', response_class=HTMLResponse)
@@ -254,7 +267,8 @@ async def api_status():
 
 
 @app.post('/api/bot/action')
-async def api_bot_action(body: BotActionRequest):
+async def api_bot_action(body: BotActionRequest, api_key: Optional[str] = Security(_api_key_header)):
+    _require_auth(api_key)
     action = body.action.lower()
     if action not in ('start', 'stop', 'restart'):
         raise HTTPException(400, 'action must be start | stop | restart')
@@ -263,16 +277,28 @@ async def api_bot_action(body: BotActionRequest):
 
     def do_stop():
         p = get_bot_pid()
-        if p:
+        if not p:
+            return True
+        try:
+            os.kill(p, signal.SIGTERM)
+        except ProcessLookupError:
+            return True
+        except Exception:
+            return False
+        # Wait up to 5s for graceful exit
+        for _ in range(10):
+            time.sleep(0.5)
+            if get_bot_pid() is None:
+                return True
+        # Escalate to SIGKILL if still alive
+        p2 = get_bot_pid()
+        if p2:
             try:
-                os.kill(p, signal.SIGTERM)
-                time.sleep(2)
-                return True
-            except ProcessLookupError:
-                return True
-            except Exception as e:
-                return False
-        return True
+                os.kill(p2, signal.SIGKILL)
+                time.sleep(0.5)
+            except Exception:
+                pass
+        return get_bot_pid() is None
 
     def do_start():
         try:
