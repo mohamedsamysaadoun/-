@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>رَوْنَق — لوحة التحكم</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg-base:    #0F172A;
+    --bg-card:    #1E293B;
+    --bg-card2:   #243047;
+    --border:     #334155;
+    --gold:       #D4AF37;
+    --gold-dim:   #B8942A;
+    --gold-glow:  rgba(212,175,55,.35);
+    --text-main:  #F1F5F9;
+    --text-muted: #94A3B8;
+    --green:      #10B981;
+    --red:        #EF4444;
+    --yellow:     #F59E0B;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Naskh Arabic', 'Inter', sans-serif;
+    background: var(--bg-base);
+    color: var(--text-main);
+    min-height: 100vh;
+    direction: rtl;
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-base); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gold-dim); }
+
+  /* ── Layout ── */
+  #app { display: flex; min-height: 100vh; }
+
+  /* ── Sidebar ── */
+  #sidebar {
+    width: 240px;
+    background: var(--bg-card);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; right: 0; bottom: 0;
+    z-index: 50;
+    transition: transform .3s;
+  }
+  .sidebar-logo {
+    padding: 28px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .app-name {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gold);
+    text-shadow: 0 0 20px var(--gold-glow), 0 0 40px var(--gold-glow);
+    letter-spacing: 1px;
+    display: block;
+  }
+  .app-sub {
+    font-size: .78rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+    display: block;
+  }
+
+  .nav-list { padding: 16px 10px; flex: 1; }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: .95rem;
+    transition: all .2s;
+    margin-bottom: 4px;
+    user-select: none;
+  }
+  .nav-item:hover { background: rgba(212,175,55,.08); color: var(--gold); }
+  .nav-item.active { background: rgba(212,175,55,.15); color: var(--gold); font-weight: 600; }
+  .nav-icon { font-size: 1.25rem; flex-shrink: 0; }
+
+  .sidebar-footer {
+    padding: 14px 20px;
+    border-top: 1px solid var(--border);
+    font-size: .75rem;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  /* ── Main content ── */
+  #main {
+    margin-right: 240px;
+    flex: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Top bar ── */
+  #topbar {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+  }
+  .topbar-title { font-size: 1.1rem; font-weight: 600; }
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 14px;
+    border-radius: 999px;
+    font-size: .82rem;
+    font-weight: 600;
+    transition: all .3s;
+  }
+  .status-badge.running { background: rgba(16,185,129,.15); color: var(--green); border: 1px solid rgba(16,185,129,.3); }
+  .status-badge.stopped { background: rgba(239,68,68,.12); color: var(--red); border: 1px solid rgba(239,68,68,.25); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .dot.red   { background: var(--red);   box-shadow: 0 0 6px var(--red); }
+
+  /* ── Content area ── */
+  #content { padding: 28px; flex: 1; }
+
+  /* ── Tabs ── */
+  .tab-panel { display: none; animation: fadeIn .25s ease; }
+  .tab-panel.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    transition: border-color .2s;
+  }
+  .card:hover { border-color: rgba(212,175,55,.3); }
+  .card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ── Stat cards ── */
+  .stat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 24px; }
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform .2s, border-color .2s;
+  }
+  .stat-card:hover { transform: translateY(-2px); border-color: rgba(212,175,55,.4); }
+  .stat-icon { font-size: 2rem; margin-bottom: 8px; display: block; }
+  .stat-value { font-size: 2.2rem; font-weight: 700; font-family: 'Inter', sans-serif; color: var(--gold); }
+  .stat-label { font-size: .82rem; color: var(--text-muted); margin-top: 4px; }
+
+  /* ── Bot control buttons ── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 22px;
+    border-radius: 10px;
+    border: none;
+    font-family: inherit;
+    font-size: .92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-gold {
+    background: var(--gold);
+    color: #0F172A;
+  }
+  .btn-gold:hover { background: #c9a227; box-shadow: 0 4px 20px var(--gold-glow); }
+  .btn-gold:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-main);
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+  .btn-danger { background: rgba(239,68,68,.15); color: var(--red); border: 1px solid rgba(239,68,68,.3); }
+  .btn-danger:hover { background: rgba(239,68,68,.25); }
+  .btn-success { background: rgba(16,185,129,.15); color: var(--green); border: 1px solid rgba(16,185,129,.3); }
+  .btn-success:hover { background: rgba(16,185,129,.25); }
+
+  /* ── Form elements ── */
+  .form-group { margin-bottom: 18px; }
+  .form-label {
+    display: block;
+    font-size: .88rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 7px;
+  }
+  .form-input, .form-select {
+    width: 100%;
+    background: var(--bg-base);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 10px 14px;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: .92rem;
+    transition: border-color .2s, box-shadow .2s;
+    direction: rtl;
+    appearance: none;
+  }
+  .form-input:focus, .form-select:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px var(--gold-glow);
+  }
+  .form-input::placeholder { color: var(--text-muted); }
+
+  /* Select arrow for RTL */
+  .select-wrap { position: relative; }
+  .select-wrap::before {
+    content: '▾';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+    font-size: .8rem;
+  }
+
+  /* ── Theme swatches ── */
+  .theme-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .theme-swatch {
+    border: 2px solid transparent;
+    border-radius: 10px;
+    padding: 10px 6px;
+    cursor: pointer;
+    text-align: center;
+    font-size: .78rem;
+    color: var(--text-main);
+    transition: all .2s;
+    background: var(--bg-base);
+  }
+  .theme-swatch:hover { border-color: var(--border); transform: scale(1.05); }
+  .theme-swatch.selected { border-color: var(--gold); background: rgba(212,175,55,.12); }
+  .theme-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    margin: 0 auto 6px;
+    border: 2px solid rgba(255,255,255,.15);
+  }
+
+  /* ── Sound cards ── */
+  .sound-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .sound-card {
+    border: 2px solid var(--border);
+    border-radius: 9px;
+    padding: 10px 8px;
+    cursor: pointer;
+    text-align: center;
+    font-size: .78rem;
+    transition: all .2s;
+    background: var(--bg-base);
+    color: var(--text-muted);
+  }
+  .sound-card:hover { border-color: var(--gold); color: var(--text-main); }
+  .sound-card.selected { border-color: var(--gold); background: rgba(212,175,55,.1); color: var(--gold); }
+  .sound-icon { font-size: 1.4rem; display: block; margin-bottom: 4px; }
+
+  /* ── Toggle switch ── */
+  .toggle-wrap { display: flex; align-items: center; gap: 12px; }
+  .toggle {
+    position: relative; width: 46px; height: 26px;
+    background: var(--border);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background .2s;
+    flex-shrink: 0;
+  }
+  .toggle.on { background: var(--gold); }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px; right: 3px;
+    width: 20px; height: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: transform .2s;
+  }
+  .toggle.on::after { transform: translateX(-20px); }
+  .toggle-label { font-size: .9rem; color: var(--text-main); }
+
+  /* ── Progress / Spinner ── */
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid rgba(212,175,55,.2);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    display: inline-block;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .progress-bar-track {
+    width: 100%;
+    background: var(--border);
+    border-radius: 999px;
+    height: 6px;
+    overflow: hidden;
+    margin-top: 12px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+    border-radius: 999px;
+    animation: progress-pulse 2s ease-in-out infinite;
+    width: 45%;
+  }
+  @keyframes progress-pulse {
+    0%,100% { width: 30%; } 50% { width: 70%; }
+  }
+
+  /* ── Chat ── */
+  #chat-messages {
+    height: 420px;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--bg-base);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    margin-bottom: 14px;
+  }
+  .chat-msg { max-width: 78%; display: flex; flex-direction: column; }
+  .chat-msg.user { align-self: flex-start; align-items: flex-start; }
+  .chat-msg.ai { align-self: flex-end; align-items: flex-end; }
+  .chat-bubble {
+    padding: 11px 15px;
+    border-radius: 16px;
+    font-size: .9rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .chat-msg.user .chat-bubble {
+    background: rgba(212,175,55,.18);
+    border: 1px solid rgba(212,175,55,.3);
+    color: var(--text-main);
+    border-top-right-radius: 4px;
+  }
+  .chat-msg.ai .chat-bubble {
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    border-top-left-radius: 4px;
+  }
+  .chat-time { font-size: .7rem; color: var(--text-muted); margin-top: 3px; }
+
+  .chat-reel-card {
+    background: rgba(212,175,55,.08);
+    border: 1px solid rgba(212,175,55,.3);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-top: 8px;
+    font-size: .85rem;
+  }
+  .chat-input-row { display: flex; gap: 10px; }
+  #chat-input {
+    flex: 1;
+    resize: none;
+    height: 48px;
+    padding: 12px 14px;
+    background: var(--bg-base);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: .92rem;
+    direction: rtl;
+    transition: border-color .2s;
+  }
+  #chat-input:focus { outline: none; border-color: var(--gold); }
+  #chat-send {
+    width: 48px; height: 48px;
+    background: var(--gold);
+    border: none;
+    border-radius: 10px;
+    color: #0F172A;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all .2s;
+    flex-shrink: 0;
+  }
+  #chat-send:hover { background: #c9a227; }
+
+  /* ── Logs ── */
+  #log-terminal {
+    background: #0a0f1a;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    height: 480px;
+    overflow-y: auto;
+    font-family: 'Courier New', 'Consolas', monospace;
+    font-size: .78rem;
+    line-height: 1.6;
+    direction: ltr;
+  }
+  .log-line { display: block; }
+  .log-line.error   { color: #F87171; }
+  .log-line.warning { color: #FBBF24; }
+  .log-line.info    { color: #34D399; }
+  .log-line.debug   { color: #94A3B8; }
+  .log-line.default { color: #CBD5E1; }
+
+  /* ── Toast ── */
+  #toast-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+  }
+  .toast {
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: .88rem;
+    font-weight: 600;
+    min-width: 260px;
+    text-align: center;
+    animation: toastIn .35s ease, toastOut .4s ease 2.8s forwards;
+    pointer-events: auto;
+    box-shadow: 0 8px 30px rgba(0,0,0,.4);
+  }
+  .toast.success { background: rgba(16,185,129,.95); color: white; }
+  .toast.error   { background: rgba(239,68,68,.95); color: white; }
+  .toast.info    { background: rgba(212,175,55,.95); color: #0F172A; }
+  @keyframes toastIn  { from { opacity:0; transform:translateY(-16px); } to { opacity:1; transform:none; } }
+  @keyframes toastOut { to   { opacity:0; transform:translateY(-16px); } }
+
+  /* ── Video result ── */
+  .video-result { margin-top: 20px; }
+  .video-result video {
+    width: 100%;
+    max-width: 360px;
+    border-radius: 14px;
+    border: 2px solid var(--gold);
+    display: block;
+    margin: 0 auto 14px;
+    box-shadow: 0 0 30px var(--gold-glow);
+  }
+  .result-meta { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 14px; }
+  .result-badge {
+    background: rgba(212,175,55,.12);
+    border: 1px solid rgba(212,175,55,.25);
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: .8rem;
+    color: var(--gold);
+  }
+
+  /* ── Divider ── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+  /* ── Skeleton loader ── */
+  .skeleton {
+    background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-card2) 50%, var(--bg-card) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+    height: 16px;
+    margin: 8px 0;
+  }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+
+  /* ── Two-column form layout ── */
+  .form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .form-3col { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 14px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    #sidebar { transform: translateX(100%); }
+    #sidebar.open { transform: translateX(0); }
+    #main { margin-right: 0; }
+    .stat-grid { grid-template-columns: 1fr; }
+    .theme-grid { grid-template-columns: repeat(4,1fr); }
+    .sound-grid { grid-template-columns: repeat(2,1fr); }
+    .form-2col, .form-3col { grid-template-columns: 1fr; }
+    #content { padding: 16px; }
+    #topbar { padding: 12px 16px; }
+  }
+
+  /* ── Mobile burger ── */
+  #burger {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-main);
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+  @media (max-width: 768px) { #burger { display: block; } }
+
+  /* ── Generate form card sections ── */
+  .section-heading {
+    font-size: .82rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-heading::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  /* flip the ::after for RTL so it stretches left */
+
+  .generate-container { max-width: 780px; }
+  .generate-big-btn {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    margin-top: 6px;
+    justify-content: center;
+  }
+</style>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<div id="app">
+  <!-- ══ Sidebar ══ -->
+  <nav id="sidebar">
+    <div class="sidebar-logo">
+      <span class="app-name">رَوْنَق</span>
+      <span class="app-sub">Quran Reels Bot — لوحة التحكم</span>
+    </div>
+    <ul class="nav-list" id="nav-list">
+      <li class="nav-item active" data-tab="dashboard">
+        <span class="nav-icon">🏠</span>
+        <span>لوحة التحكم</span>
+      </li>
+      <li class="nav-item" data-tab="generate">
+        <span class="nav-icon">🎬</span>
+        <span>إنشاء ريلز</span>
+      </li>
+      <li class="nav-item" data-tab="chat">
+        <span class="nav-icon">🤖</span>
+        <span>محادثة ذكية</span>
+      </li>
+      <li class="nav-item" data-tab="logs">
+        <span class="nav-icon">📋</span>
+        <span>السجلات</span>
+      </li>
+    </ul>
+    <div class="sidebar-footer">
+      رَوْنَق Bot Dashboard v1.0
+    </div>
+  </nav>
+
+  <!-- ══ Main ══ -->
+  <div id="main">
+    <!-- Top bar -->
+    <header id="topbar">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <button id="burger" onclick="toggleSidebar()">☰</button>
+        <span class="topbar-title" id="topbar-title">لوحة التحكم</span>
+      </div>
+      <div id="status-badge" class="status-badge stopped">
+        <span class="dot red" id="status-dot"></span>
+        <span id="status-text">جاري التحقق...</span>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main id="content">
+
+      <!-- ══ TAB 1: Dashboard ══ -->
+      <div class="tab-panel active" id="tab-dashboard">
+        <!-- Stats row -->
+        <div class="stat-grid" id="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon">👥</span>
+            <div class="stat-value" id="stat-users">—</div>
+            <div class="stat-label">المستخدمون الفريدون</div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon">🎬</span>
+            <div class="stat-value" id="stat-reels">—</div>
+            <div class="stat-label">الريلز المُنتجة</div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon" id="stat-status-icon">⏳</span>
+            <div class="stat-value" id="stat-status-val" style="font-size:1.3rem;">تحقق...</div>
+            <div class="stat-label">حالة البوت</div>
+          </div>
+        </div>
+
+        <!-- Bot Control -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-title">⚙️ التحكم في البوت</div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <button class="btn btn-success" onclick="botAction('start')">▶️ تشغيل</button>
+            <button class="btn btn-danger" onclick="botAction('stop')">⏹ إيقاف</button>
+            <button class="btn btn-outline" onclick="botAction('restart')">🔄 إعادة التشغيل</button>
+          </div>
+          <div id="bot-action-result" style="margin-top:12px;font-size:.85rem;color:var(--text-muted);"></div>
+        </div>
+
+        <!-- Uptime -->
+        <div class="card">
+          <div class="card-title">⏱ معلومات الخادم</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <div>
+              <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:4px;">وقت التشغيل</div>
+              <div style="font-family:'Inter';font-weight:600;" id="uptime-val">—</div>
+            </div>
+            <div>
+              <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:4px;">PID البوت</div>
+              <div style="font-family:'Inter';font-weight:600;" id="pid-val">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ TAB 2: Generate ══ -->
+      <div class="tab-panel" id="tab-generate">
+        <div class="generate-container">
+
+          <!-- Surah & Ayahs -->
+          <div class="card" style="margin-bottom:18px;">
+            <div class="section-heading">📖 السورة والآيات</div>
+            <div class="form-3col">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">السورة</label>
+                <div class="select-wrap">
+                  <select class="form-select" id="gen-surah" onchange="onSurahChange()">
+                    <option value="">⏳ جاري التحميل...</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">من الآية</label>
+                <input type="number" class="form-input" id="gen-start" value="1" min="1"/>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">إلى الآية</label>
+                <input type="number" class="form-input" id="gen-end" placeholder="نهاية السورة"/>
+              </div>
+            </div>
+            <div id="surah-info" style="margin-top:10px;font-size:.85rem;color:var(--gold);display:none;padding:8px 12px;background:rgba(212,175,55,.08);border-radius:8px;border:1px solid rgba(212,175,55,.2);"></div>
+          </div>
+
+          <!-- Reciter -->
+          <div class="card" style="margin-bottom:18px;">
+            <div class="section-heading">🎙 القارئ</div>
+            <div class="form-group" style="margin-bottom:0;">
+              <div class="select-wrap">
+                <select class="form-select" id="gen-reciter">
+                  <option value="">⏳ جاري التحميل...</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Theme & Sound -->
+          <div class="card" style="margin-bottom:18px;">
+            <div class="section-heading">🎨 المظهر والأصوات</div>
+
+            <div class="form-label">الثيم</div>
+            <div class="theme-grid" id="theme-grid">
+              <!-- Filled by JS -->
+            </div>
+            <input type="hidden" id="gen-theme" value="gold"/>
+
+            <div style="margin-top:20px;">
+              <div class="form-label">صوت الطبيعة</div>
+              <div class="sound-grid" id="sound-grid">
+                <div class="sound-card selected" data-sound="none" onclick="selectSound(this,'none')">
+                  <span class="sound-icon">🔇</span>
+                  <span>بدون</span>
+                </div>
+              </div>
+              <input type="hidden" id="gen-sound" value="none"/>
+            </div>
+          </div>
+
+          <!-- Font & Translation -->
+          <div class="card" style="margin-bottom:18px;">
+            <div class="section-heading">✏️ الخط والترجمة</div>
+            <div class="form-2col">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">الخط</label>
+                <div class="select-wrap">
+                  <select class="form-select" id="gen-font">
+                    <option value="amiri">Amiri (افتراضي)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:0;display:flex;align-items:flex-end;">
+                <div>
+                  <label class="form-label">الترجمة الإنجليزية</label>
+                  <div class="toggle-wrap">
+                    <div class="toggle on" id="trans-toggle" onclick="toggleTranslation()"></div>
+                    <span class="toggle-label" id="trans-toggle-label">مفعّلة</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="trans-lang-row" style="margin-top:14px;">
+              <label class="form-label">لغة الترجمة</label>
+              <div class="select-wrap">
+                <select class="form-select" id="gen-trans-lang">
+                  <option value="en">English — الإنجليزية</option>
+                  <option value="ur">Urdu — الأردية</option>
+                  <option value="fr">French — الفرنسية</option>
+                  <option value="tr">Turkish — التركية</option>
+                  <option value="id">Indonesian — الإندونيسية</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Background & Batch -->
+          <div class="card" style="margin-bottom:24px;">
+            <div class="section-heading">🖼 الخلفية والتوليد المتعدد</div>
+            <div class="form-group">
+              <label class="form-label">استعلام الخلفية (اختياري)</label>
+              <input type="text" class="form-input" id="gen-bg" placeholder="مثال: ليلة هادئة تحت النجوم"/>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">التوليد المتعدد (0 = مفرد)</label>
+              <input type="number" class="form-input" id="gen-batch" value="0" min="0" max="10" style="max-width:160px;"/>
+            </div>
+          </div>
+
+          <!-- Generate button -->
+          <button class="btn btn-gold generate-big-btn" id="gen-btn" onclick="generateReel()">
+            🎬 توليد الريلز
+          </button>
+
+          <!-- Generating indicator -->
+          <div id="gen-progress" style="display:none;margin-top:24px;">
+            <div class="card" style="text-align:center;padding:30px;">
+              <div class="spinner" style="margin:0 auto 14px;"></div>
+              <div style="font-size:1rem;font-weight:600;color:var(--gold);margin-bottom:6px;">جاري التوليد...</div>
+              <div style="font-size:.85rem;color:var(--text-muted);">قد يستغرق ذلك من دقيقة إلى دقيقتين. يرجى الانتظار.</div>
+              <div class="progress-bar-track"><div class="progress-bar-fill"></div></div>
+            </div>
+          </div>
+
+          <!-- Result -->
+          <div id="gen-result" style="display:none;margin-top:20px;"></div>
+        </div>
+      </div>
+
+      <!-- ══ TAB 3: Chat ══ -->
+      <div class="tab-panel" id="tab-chat">
+        <div style="max-width:700px;">
+          <div class="card" style="padding:0;overflow:hidden;">
+            <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+              <span style="font-size:1.4rem;">🤖</span>
+              <div>
+                <div style="font-weight:700;font-size:.95rem;">مساعد رَوْنَق الذكي</div>
+                <div style="font-size:.75rem;color:var(--text-muted);">اطلب منه توليد ريلز أو اسأله عن القرآن</div>
+              </div>
+            </div>
+            <div style="padding:16px;">
+              <div id="chat-messages">
+                <div class="chat-msg ai">
+                  <div class="chat-bubble">
+                    مرحباً! أنا مساعد رَوْنَق الذكي 🌟<br>
+                    يمكنني مساعدتك في توليد ريلز قرآنية أو الإجابة عن أسئلتك.<br>
+                    جرّب أن تقول: "ولّد ريلز سورة الفاتحة بصوت العفاسي"
+                  </div>
+                  <span class="chat-time">الآن</span>
+                </div>
+              </div>
+              <div class="chat-input-row">
+                <textarea id="chat-input" placeholder="اكتب رسالتك هنا..." onkeydown="chatKeydown(event)"></textarea>
+                <button id="chat-send" onclick="sendChat()">➤</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ TAB 4: Logs ══ -->
+      <div class="tab-panel" id="tab-logs">
+        <div class="card" style="margin-bottom:14px;padding:16px 20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <div class="card-title" style="margin-bottom:0;">📋 سجلات البوت</div>
+            <div style="display:flex;align-items:center;gap:14px;">
+              <label style="display:flex;align-items:center;gap:7px;font-size:.85rem;cursor:pointer;">
+                <input type="checkbox" id="log-autoscroll" checked style="accent-color:var(--gold);"/>
+                تمرير تلقائي
+              </label>
+              <button class="btn btn-outline" style="padding:7px 16px;font-size:.83rem;" onclick="fetchLogs()">🔄 تحديث</button>
+            </div>
+          </div>
+        </div>
+        <div id="log-terminal"></div>
+        <div style="margin-top:10px;font-size:.75rem;color:var(--text-muted);text-align:center;">
+          يتحدث تلقائياً كل 5 ثوانٍ — يعرض آخر 100 سطر
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ══ Overlay for mobile sidebar ══ -->
+<div id="sidebar-overlay" onclick="toggleSidebar()"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:49;"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+//  State
+// ════════════════════════════════════════════════════════════
+const state = {
+  currentTab: localStorage.getItem('rawnaq_tab') || 'dashboard',
+  botRunning: false,
+  translationOn: true,
+  selectedTheme: 'gold',
+  selectedSound: 'none',
+  surahs: [],
+  reciters: [],
+  sounds: [],
+  chatHistory: [],
+};
+
+// ════════════════════════════════════════════════════════════
+//  Tab routing
+// ════════════════════════════════════════════════════════════
+const TAB_TITLES = {
+  dashboard: 'لوحة التحكم',
+  generate:  'إنشاء ريلز',
+  chat:      'محادثة ذكية',
+  logs:      'السجلات',
+};
+
+function switchTab(tab) {
+  state.currentTab = tab;
+  localStorage.setItem('rawnaq_tab', tab);
+
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.tab === tab);
+  });
+  document.querySelectorAll('.tab-panel').forEach(el => {
+    el.classList.toggle('active', el.id === `tab-${tab}`);
+  });
+  document.getElementById('topbar-title').textContent = TAB_TITLES[tab] || tab;
+
+  if (window.innerWidth <= 768) closeSidebar();
+}
+
+document.getElementById('nav-list').addEventListener('click', e => {
+  const item = e.target.closest('.nav-item');
+  if (item) switchTab(item.dataset.tab);
+});
+
+// ════════════════════════════════════════════════════════════
+//  Sidebar (mobile)
+// ════════════════════════════════════════════════════════════
+function toggleSidebar() {
+  const s = document.getElementById('sidebar');
+  const o = document.getElementById('sidebar-overlay');
+  const open = s.classList.toggle('open');
+  o.style.display = open ? 'block' : 'none';
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').style.display = 'none';
+}
+
+// ════════════════════════════════════════════════════════════
+//  Toast
+// ════════════════════════════════════════════════════════════
+function toast(msg, type = 'info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+// ════════════════════════════════════════════════════════════
+//  API helpers
+// ════════════════════════════════════════════════════════════
+async function api(path, opts = {}) {
+  const res = await fetch(path, {
+    headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
+    ...opts,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail || err.error || res.statusText);
+  }
+  return res.json();
+}
+
+// ════════════════════════════════════════════════════════════
+//  Status polling
+// ════════════════════════════════════════════════════════════
+async function fetchStatus() {
+  try {
+    const d = await api('/api/status');
+    const running = d.bot_status === 'running';
+    state.botRunning = running;
+
+    const badge  = document.getElementById('status-badge');
+    const dot    = document.getElementById('status-dot');
+    const text   = document.getElementById('status-text');
+    const icon   = document.getElementById('stat-status-icon');
+    const val    = document.getElementById('stat-status-val');
+
+    badge.className = `status-badge ${running ? 'running' : 'stopped'}`;
+    dot.className   = `dot ${running ? 'green' : 'red'}`;
+    text.textContent = running ? 'البوت يعمل' : 'البوت متوقف';
+    icon.textContent = running ? '🟢' : '🔴';
+    val.textContent  = running ? 'يعمل' : 'متوقف';
+    val.style.color  = running ? 'var(--green)' : 'var(--red)';
+
+    document.getElementById('stat-users').textContent = formatNum(d.stats?.unique_users ?? 0);
+    document.getElementById('stat-reels').textContent = formatNum(d.stats?.reels_made ?? 0);
+    document.getElementById('pid-val').textContent = d.bot_pid ?? '—';
+    document.getElementById('uptime-val').textContent = formatUptime(d.uptime_seconds ?? 0);
+  } catch (e) {
+    console.warn('Status fetch failed:', e);
+  }
+}
+
+function formatNum(n) {
+  return Number(n).toLocaleString('ar-EG');
+}
+function formatUptime(s) {
+  if (s < 60) return `${s} ثانية`;
+  if (s < 3600) return `${Math.floor(s/60)} دقيقة`;
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60);
+  return `${h} ساعة ${m} دقيقة`;
+}
+
+// ════════════════════════════════════════════════════════════
+//  Bot actions
+// ════════════════════════════════════════════════════════════
+async function botAction(action) {
+  const resultEl = document.getElementById('bot-action-result');
+  resultEl.textContent = '⏳ جاري التنفيذ...';
+  resultEl.style.color = 'var(--text-muted)';
+  try {
+    const d = await api('/api/bot/action', {
+      method: 'POST',
+      body: JSON.stringify({ action }),
+    });
+    resultEl.textContent = d.message;
+    resultEl.style.color = d.success ? 'var(--green)' : 'var(--red)';
+    toast(d.message, d.success ? 'success' : 'error');
+    setTimeout(fetchStatus, 1500);
+  } catch (e) {
+    resultEl.textContent = `خطأ: ${e.message}`;
+    resultEl.style.color = 'var(--red)';
+    toast(`خطأ: ${e.message}`, 'error');
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  Load data (surahs / reciters / fonts / sounds)
+// ════════════════════════════════════════════════════════════
+const SOUND_ICONS = {
+  none: '🔇', rain: '🌧️', river: '🌊', wind: '💨',
+  birds: '🐦', waves: '🌊', desert: '🏜️', waterfall: '💦',
+  ocean: '🌊', forest: '🌲', thunder: '⛈️',
+};
+
+async function loadData() {
+  await Promise.allSettled([
+    loadSurahs(),
+    loadReciters(),
+    loadFonts(),
+    loadSounds(),
+    loadThemes(),
+  ]);
+}
+
+async function loadSurahs() {
+  try {
+    state.surahs = await api('/api/surahs');
+    const sel = document.getElementById('gen-surah');
+    sel.innerHTML = state.surahs.map(s =>
+      `<option value="${s.number}">${s.number}. ${s.name_ar} — ${s.name_en}</option>`
+    ).join('');
+    onSurahChange();
+  } catch (e) { console.warn('Surahs:', e); }
+}
+
+async function loadReciters() {
+  try {
+    state.reciters = await api('/api/reciters');
+    const sel = document.getElementById('gen-reciter');
+    const groups = {};
+    state.reciters.forEach(r => {
+      if (!groups[r.group]) groups[r.group] = [];
+      groups[r.group].push(r);
+    });
+    sel.innerHTML = Object.entries(groups).map(([g, rs]) =>
+      `<optgroup label="${g}">${rs.map(r =>
+        `<option value="${r.id}"${r.id === 'ar.alafasy' ? ' selected' : ''}>${r.name_ar}</option>`
+      ).join('')}</optgroup>`
+    ).join('');
+  } catch (e) { console.warn('Reciters:', e); }
+}
+
+async function loadFonts() {
+  try {
+    const fonts = await api('/api/fonts');
+    const sel = document.getElementById('gen-font');
+    sel.innerHTML = fonts.map(f =>
+      `<option value="${f.id}">${f.display}</option>`
+    ).join('');
+  } catch (e) { console.warn('Fonts:', e); }
+}
+
+async function loadSounds() {
+  try {
+    state.sounds = await api('/api/sounds');
+    const grid = document.getElementById('sound-grid');
+    grid.innerHTML = state.sounds.map(s => {
+      const icon = SOUND_ICONS[s.id] || '🎵';
+      const selected = s.id === 'none' ? 'selected' : '';
+      return `<div class="sound-card ${selected}" data-sound="${s.id}" onclick="selectSound(this,'${s.id}')">
+        <span class="sound-icon">${icon}</span>
+        <span>${s.name_ar}</span>
+      </div>`;
+    }).join('');
+  } catch (e) { console.warn('Sounds:', e); }
+}
+
+const THEMES = [
+  { id: 'gold',    label: 'ذهبي',    color: '#D4AF37' },
+  { id: 'sky',     label: 'سماوي',   color: '#0EA5E9' },
+  { id: 'green',   label: 'أخضر',    color: '#10B981' },
+  { id: 'purple',  label: 'بنفسجي',  color: '#7C3AED' },
+  { id: 'white',   label: 'أبيض',    color: '#F8FAFC' },
+  { id: 'night',   label: 'ليلي',    color: '#1E293B', border: '#475569' },
+  { id: 'ramadan', label: 'رمضان',   color: '#F59E0B' },
+  { id: 'royal',   label: 'ملكي',    color: '#6D28D9' },
+];
+
+function loadThemes() {
+  const grid = document.getElementById('theme-grid');
+  grid.innerHTML = THEMES.map(t =>
+    `<div class="theme-swatch ${t.id === state.selectedTheme ? 'selected' : ''}"
+          data-theme="${t.id}" onclick="selectTheme(this,'${t.id}')">
+      <div class="theme-dot" style="background:${t.color};${t.border ? 'border-color:'+t.border : ''}"></div>
+      ${t.label}
+    </div>`
+  ).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+//  Form controls
+// ════════════════════════════════════════════════════════════
+function selectTheme(el, id) {
+  state.selectedTheme = id;
+  document.getElementById('gen-theme').value = id;
+  document.querySelectorAll('.theme-swatch').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function selectSound(el, id) {
+  state.selectedSound = id;
+  document.getElementById('gen-sound').value = id;
+  document.querySelectorAll('.sound-card').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function toggleTranslation() {
+  state.translationOn = !state.translationOn;
+  const t = document.getElementById('trans-toggle');
+  const l = document.getElementById('trans-toggle-label');
+  const r = document.getElementById('trans-lang-row');
+  t.classList.toggle('on', state.translationOn);
+  l.textContent = state.translationOn ? 'مفعّلة' : 'معطّلة';
+  r.style.display = state.translationOn ? 'block' : 'none';
+}
+
+function onSurahChange() {
+  const num = parseInt(document.getElementById('gen-surah').value);
+  const surah = state.surahs.find(s => s.number === num);
+  const info = document.getElementById('surah-info');
+  if (surah) {
+    info.textContent = `سورة ${surah.name_ar} — ${surah.name_en} — السورة رقم ${num}`;
+    info.style.display = 'block';
+  } else {
+    info.style.display = 'none';
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  Generate reel
+// ════════════════════════════════════════════════════════════
+async function generateReel() {
+  const surahNum = parseInt(document.getElementById('gen-surah').value);
+  if (!surahNum) { toast('يرجى اختيار السورة', 'error'); return; }
+
+  const endVal = document.getElementById('gen-end').value;
+  const batchVal = parseInt(document.getElementById('gen-batch').value) || 0;
+
+  const payload = {
+    surah_number:       surahNum,
+    start_ayah:         parseInt(document.getElementById('gen-start').value) || 1,
+    end_ayah:           endVal ? parseInt(endVal) : -1,
+    reciter:            document.getElementById('gen-reciter').value || 'ar.alafasy',
+    theme:              state.selectedTheme,
+    nature_sound:       state.selectedSound === 'none' ? '' : state.selectedSound,
+    font_name:          document.getElementById('gen-font').value,
+    translation_enabled: state.translationOn,
+    translation_lang:   state.translationOn ? document.getElementById('gen-trans-lang').value : '',
+    background_query:   document.getElementById('gen-bg').value.trim(),
+    batch_count:        batchVal,
+  };
+
+  const btn      = document.getElementById('gen-btn');
+  const progress = document.getElementById('gen-progress');
+  const result   = document.getElementById('gen-result');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ جاري التوليد...';
+  progress.style.display = 'block';
+  result.style.display   = 'none';
+  result.innerHTML       = '';
+
+  try {
+    const data = await api('/api/generate', { method: 'POST', body: JSON.stringify(payload) });
+
+    progress.style.display = 'none';
+    result.style.display   = 'block';
+
+    if (data.success) {
+      toast('تم توليد الريلز بنجاح! 🎉', 'success');
+      result.innerHTML = `
+        <div class="card video-result">
+          <div class="card-title" style="justify-content:center;">🎉 تم التوليد بنجاح!</div>
+          <div class="result-meta">
+            <span class="result-badge">📖 ${data.surah_name_ar}</span>
+            <span class="result-badge">🎙 ${data.reciter_name}</span>
+            <span class="result-badge">💾 ${data.file_size_mb} MB</span>
+          </div>
+          <video controls playsinline preload="metadata"
+                 src="${data.video_url}"
+                 onerror="this.closest('.video-result').querySelector('.video-error').style.display='block';this.style.display='none';">
+          </video>
+          <div class="video-error" style="display:none;color:var(--yellow);font-size:.85rem;text-align:center;margin-bottom:12px;">
+            ⚠️ تعذر تشغيل الفيديو مباشرةً. استخدم زر التحميل.
+          </div>
+          <div style="text-align:center;">
+            <a class="btn btn-gold" href="${data.video_url}" download style="text-decoration:none;display:inline-flex;">
+              ⬇️ تحميل الفيديو
+            </a>
+          </div>
+        </div>`;
+    } else {
+      toast('فشل التوليد', 'error');
+      result.innerHTML = `
+        <div class="card" style="border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.06);">
+          <div style="color:var(--red);font-weight:700;margin-bottom:8px;">❌ حدث خطأ</div>
+          <div style="font-size:.88rem;color:var(--text-muted);">${data.error || 'خطأ غير معروف'}</div>
+        </div>`;
+    }
+  } catch (e) {
+    progress.style.display = 'none';
+    result.style.display   = 'block';
+    toast(`خطأ: ${e.message}`, 'error');
+    result.innerHTML = `
+      <div class="card" style="border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.06);">
+        <div style="color:var(--red);font-weight:700;margin-bottom:8px;">❌ خطأ في الاتصال</div>
+        <div style="font-size:.88rem;color:var(--text-muted);">${e.message}</div>
+      </div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🎬 توليد الريلز';
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  Chat
+// ════════════════════════════════════════════════════════════
+function chatKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendChat();
+  }
+}
+
+function nowTime() {
+  return new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+}
+
+function appendMsg(role, text, extra = '') {
+  const box = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `chat-msg ${role === 'user' ? 'user' : 'ai'}`;
+  div.innerHTML = `
+    <div class="chat-bubble">${escHtml(text)}</div>
+    ${extra}
+    <span class="chat-time">${nowTime()}</span>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+let chatTypingEl = null;
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  input.value = '';
+  appendMsg('user', msg);
+
+  // Typing indicator
+  const box = document.getElementById('chat-messages');
+  chatTypingEl = document.createElement('div');
+  chatTypingEl.className = 'chat-msg ai';
+  chatTypingEl.innerHTML = `<div class="chat-bubble" style="color:var(--text-muted);">⏳ يكتب...</div>`;
+  box.appendChild(chatTypingEl);
+  box.scrollTop = box.scrollHeight;
+
+  try {
+    const d = await api('/api/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message: msg, session_id: 'default' }),
+    });
+
+    if (chatTypingEl) { chatTypingEl.remove(); chatTypingEl = null; }
+
+    let extra = '';
+    if (d.make_reel && d.reel_params) {
+      const p = d.reel_params;
+      extra = `<div class="chat-reel-card">
+        <div style="font-weight:700;color:var(--gold);margin-bottom:8px;">🎬 تم اكتشاف طلب ريلز</div>
+        <div style="font-size:.82rem;color:var(--text-muted);margin-bottom:10px;">
+          سورة ${p.surah_number || '—'} • ${p.reciter || '—'}
+        </div>
+        <button class="btn btn-gold" style="font-size:.83rem;padding:8px 16px;"
+                onclick="triggerChatReel(${JSON.stringify(p).replace(/"/g,'&quot;')})">
+          🎬 توليد الآن
+        </button>
+      </div>`;
+    }
+
+    appendMsg('ai', d.reply || 'لا يوجد رد', extra);
+  } catch (e) {
+    if (chatTypingEl) { chatTypingEl.remove(); chatTypingEl = null; }
+    appendMsg('ai', `حدث خطأ: ${e.message}`);
+  }
+}
+
+function triggerChatReel(params) {
+  // Pre-fill generate form and switch tab
+  if (params.surah_number) {
+    document.getElementById('gen-surah').value = params.surah_number;
+    onSurahChange();
+  }
+  if (params.reciter) document.getElementById('gen-reciter').value = params.reciter;
+  if (params.theme) selectTheme(
+    document.querySelector(`.theme-swatch[data-theme="${params.theme}"]`) || document.querySelector('.theme-swatch'),
+    params.theme
+  );
+  switchTab('generate');
+  toast('تم نقل معاملات الريلز إلى نموذج التوليد', 'info');
+}
+
+// ════════════════════════════════════════════════════════════
+//  Logs
+// ════════════════════════════════════════════════════════════
+function classifyLog(line) {
+  const l = line.toLowerCase();
+  if (l.includes('error') || l.includes('exception') || l.includes('traceback')) return 'error';
+  if (l.includes('warn')) return 'warning';
+  if (l.includes('info') || l.includes('start') || l.includes('ready')) return 'info';
+  if (l.includes('debug')) return 'debug';
+  return 'default';
+}
+
+async function fetchLogs() {
+  try {
+    const d = await api('/api/logs?lines=100');
+    const term = document.getElementById('log-terminal');
+    const autoScroll = document.getElementById('log-autoscroll').checked;
+
+    term.innerHTML = (d.logs || []).map(line =>
+      `<span class="log-line ${classifyLog(line)}">${escHtml(line) || '&nbsp;'}</span>`
+    ).join('\n');
+
+    if (autoScroll) term.scrollTop = term.scrollHeight;
+  } catch (e) {
+    console.warn('Logs fetch failed:', e);
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  Init
+// ════════════════════════════════════════════════════════════
+async function init() {
+  // Restore active tab
+  switchTab(state.currentTab);
+
+  // Load static data
+  await loadData();
+
+  // Fetch status immediately
+  await fetchStatus();
+
+  // Status polling every 10s
+  setInterval(fetchStatus, 10000);
+
+  // Logs polling every 5s
+  setInterval(() => {
+    if (state.currentTab === 'logs') fetchLogs();
+  }, 5000);
+
+  // Initial log fetch when tab is active
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.addEventListener('click', () => {
+      if (el.dataset.tab === 'logs') setTimeout(fetchLogs, 100);
+    });
+  });
+}
+
+init().catch(console.error);
+</script>
+</body>
+</html>
