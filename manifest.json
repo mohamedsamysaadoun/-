@@ -1,0 +1,50 @@
+{
+  "name": "GT-SQR — صانع ريلز القرآن الكريم",
+  "short_name": "GT-SQR",
+  "version": "3.0.0",
+  "description": "GT-SQR v3.0 — محرّك تصدير حتمي WebCodecs + بحث الآيات + قرآن محلي + كلمة-بكلمة + خلفيات متعددة بانتقالات + 16 خط + 10 رسوم متحركة + 9 أنماط لون + 9 أشكال دبدبات + قوالب منصات + اسم السورة",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#020b05",
+  "theme_color": "#040c08",
+  "orientation": "any",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "GT-SQR-icons/favicon/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "GT-SQR-icons/favicon/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "GT-SQR-icons/favicon/favicon-48x48.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    },
+    {
+      "src": "GT-SQR-icons/all/192x192/gt-sqr-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "GT-SQR-icons/all/512x512/gt-sqr-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "productivity"],
+  "shortcuts": [
+    {
+      "name": "مشروع جديد",
+      "url": "./index.html",
+      "description": "بدء مشروع ريلز جديد"
+    }
+  ]
+}

@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="description" content="GT-SQR — GnuTux Short Quran Reels">
+<meta name="theme-color" content="#040c08">
+<title>GT-SQR — صانع ريلز القرآن الكريم</title>
+<link rel="manifest" href="manifest.json">
+<!-- أيقونات PWA و favicon -->
+<link rel="icon" type="image/png" sizes="16x16" href="GT-SQR-icons/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="GT-SQR-icons/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="48x48" href="GT-SQR-icons/favicon/favicon-48x48.png">
+<link rel="icon" type="image/png" sizes="192x192" href="GT-SQR-icons/all/192x192/gt-sqr-icon.png">
+<link rel="shortcut icon" href="GT-SQR-icons/gt-sqr-icon.ico">
+<link rel="apple-touch-icon" sizes="192x192" href="GT-SQR-icons/all/192x192/gt-sqr-icon.png">
+<link rel="apple-touch-icon" sizes="512x512" href="GT-SQR-icons/all/512x512/gt-sqr-icon.png">
+<!-- خطوط جوجل -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link id="gfonts" href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Reem+Kufi:wght@400;700&family=Scheherazade+New:wght@400;700&family=Cairo:wght@300;400;600;700;900&family=Noto+Naskh+Arabic:wght@400;700&family=Lateef:wght@400;700&family=Harmattan:wght@400;700&family=Markazi+Text:ital,wght@0,400;0,700;1,400&family=Aref+Ruqaa&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#0a5c36;--pl:#1a8a52;--pd:#063d24;
+  --a:#c9a227;--al:#f0c842;--ad:#8c6e16;
+  --bg0:#020b05;--bg1:#050f07;--bg2:#091408;--bg3:#0f1d12;--bg4:#14201a;
+  --b1:#1a2e1e;--b2:#253c29;
+  --t1:#e8f2ea;--t2:#7daa8a;--t3:#3d6e4e;--t4:#1f4030;
+  --danger:#e05050;--info:#4a9fd5;
+  --r:7px;--rl:13px;
+  --sh:0 6px 32px rgba(0,0,0,.55);
+  --tr:all .2s cubic-bezier(.4,0,.2,1);
+  --fu:'Cairo','Segoe UI',Tahoma,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg0);color:var(--t1);font-family:var(--fu);direction:rtl;display:flex;flex-direction:column}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg1)}
+::-webkit-scrollbar-thumb{background:var(--p);border-radius:6px}
+
+/* HEADER */
+#hdr{height:70px;flex-shrink:0;background:linear-gradient(90deg,#0c1a0e,var(--bg1));border-bottom:1px solid var(--b1);padding:0 14px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 16px rgba(0,0,0,.4);z-index:100}
+.logo{display:flex;align-items:center;gap:9px}
+.logo-icon{width:70px;height:70px;border-radius:11px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--pd),var(--p),var(--a));cursor:pointer;flex-shrink:0;box-shadow:0 2px 14px rgba(201,162,39,.4);transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .3s,filter .3s}
+.logo-icon img{width:100%;height:100%;object-fit:contain;display:block;border-radius:9px}
+.logo-icon .fi{font-size:28px;display:none}
+.logo-icon:hover{transform:rotate(12deg) scale(1.18);box-shadow:0 4px 20px rgba(201,162,39,.7);filter:brightness(1.15)}
+.logo-icon:active{transform:rotate(-8deg) scale(.88);transition:transform .1s}
+.logo-text h1{font-size:17px;font-weight:900;letter-spacing:1.8px;background:linear-gradient(90deg,var(--al),var(--pl));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo-text small{font-size:9px;color:var(--t3);display:block;direction:ltr;letter-spacing:.7px}
+.hdr-r{display:flex;gap:5px;align-items:center;flex-shrink:0}
+
+/* LAYOUT */
+#app{flex:1;min-height:0;display:grid;grid-template-columns:340px 1fr;overflow:hidden}
+
+/* PANEL */
+#panel{background:var(--bg2);border-left:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.tabs{display:flex;background:var(--bg1);border-bottom:1px solid var(--b1);flex-shrink:0;overflow-x:auto}
+.tabs::-webkit-scrollbar{height:2px}
+.tab-btn{flex:1;min-width:42px;padding:7px 2px;background:none;border:none;color:var(--t3);cursor:pointer;font-family:var(--fu);font-size:8.5px;font-weight:700;border-bottom:2px solid transparent;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:2px;transition:var(--tr)}
+.tab-btn .ti{font-size:13px}
+.tab-btn:hover{color:var(--t2)}
+.tab-btn.on{color:var(--al);border-bottom-color:var(--a)}
+.tc{flex:1;overflow-y:auto;padding:11px;min-height:0}
+.tp{display:none}.tp.on{display:block}
+
+/* PREVIEW */
+#preview{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 10px 6px;overflow:hidden;position:relative;min-height:0;background:radial-gradient(ellipse at 50% 30%,rgba(10,92,54,.06),transparent 65%),var(--bg1)}
+.cw{position:relative;box-shadow:0 20px 60px rgba(0,0,0,.8);border-radius:7px;overflow:hidden;flex-shrink:0}
+#cv{display:block}
+.fmt-lbl{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.65);color:var(--al);font-size:9px;padding:2px 7px;border-radius:12px;font-weight:700;pointer-events:none}
+.pbar-wrap{margin-top:8px;display:flex;flex-direction:column;align-items:center;gap:5px;width:100%;max-width:440px;flex-shrink:0}
+.progrow{display:flex;align-items:center;gap:7px;width:100%}
+.pbar{flex:1;height:3px;background:var(--b1);border-radius:6px;overflow:hidden;cursor:pointer;position:relative}
+.pfill{position:absolute;inset:0;background:linear-gradient(90deg,var(--pl),var(--a));border-radius:6px;width:0%;transition:width .1s linear}
+.ptime{font-size:9px;color:var(--t3);direction:ltr;min-width:74px;text-align:center;flex-shrink:0}
+.pbtns{display:flex;gap:5px;align-items:center}
+.pbtn{width:30px;height:30px;border:none;background:var(--bg3);border:1px solid var(--b1);border-radius:7px;cursor:pointer;color:var(--t1);font-size:13px;transition:var(--tr);display:flex;align-items:center;justify-content:center}
+.pbtn:hover{border-color:var(--pl);color:var(--al)}
+.aya-ind{font-size:9px;color:var(--t3)}
+
+/* EXPORT BAR */
+#exbar{height:44px;flex-shrink:0;background:linear-gradient(90deg,#0c1a0e,var(--bg1));border-top:1px solid var(--b1);padding:0 12px;display:flex;align-items:center;gap:6px}
+.ex-info{font-size:9px;color:var(--t3);flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+
+/* SECTIONS */
+.sec{margin-bottom:13px}
+.sec-t{font-size:9px;font-weight:800;color:var(--a);text-transform:uppercase;letter-spacing:1.4px;margin-bottom:7px;padding-bottom:4px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:5px}
+.fg{margin-bottom:7px}
+.fl{display:block;font-size:10px;color:var(--t2);margin-bottom:2px}
+
+/* CONTROLS */
+.fc{width:100%;background:var(--bg4);border:1px solid var(--b1);border-radius:var(--r);color:var(--t1);padding:5px 8px;font-family:var(--fu);font-size:11px;transition:var(--tr)}
+/* PWA INSTALL BAR */
+#pwa-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;background:linear-gradient(135deg,var(--bg3),#0d2a18);border-top:2px solid var(--pl);padding:10px 16px;align-items:center;gap:10px;box-shadow:0 -4px 24px rgba(0,0,0,.6);animation:slideUp .35s cubic-bezier(.32,.72,0,1)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+#pwa-bar .pwa-icon{width:40px;height:40px;border-radius:9px;flex-shrink:0}
+#pwa-bar .pwa-txt{flex:1;min-width:0}
+#pwa-bar .pwa-txt strong{display:block;font-size:12px;color:var(--al);font-weight:900}
+#pwa-bar .pwa-txt small{font-size:10px;color:var(--t2)}
+#pwa-bar .pwa-btns{display:flex;gap:6px;flex-shrink:0}
+/* بحث الآيات */
+.vs-item{padding:6px 8px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .15s}
+.vs-item:last-child{border-bottom:none}
+.vs-item:hover{background:var(--bg4)}
+/* قائمة مقاطع الخلفية المتعددة */
+.bgv-item{display:flex;align-items:center;gap:5px;padding:4px 6px;background:var(--bg3);border:1px solid var(--b1);border-radius:var(--r);margin-bottom:3px;font-size:9.5px}
+.bgv-item .bgv-idx{color:var(--t3);min-width:14px;text-align:center}
+.bgv-item .bgv-name{flex:1;color:var(--t1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr}
+.bgv-item .bgv-dur{color:var(--t3);font-size:8.5px}
+.bgv-item button{background:var(--bg4);border:1px solid var(--b1);color:var(--t1);width:20px;height:20px;border-radius:4px;cursor:pointer;font-size:11px;padding:0;display:flex;align-items:center;justify-content:center}
+.bgv-item button:hover{background:var(--p)}
+.bgv-item button:disabled{opacity:.35;cursor:not-allowed}
+.bgv-item button.on{background:var(--pl);color:#000}
+.bgv-vol{width:50px;height:14px;-webkit-appearance:none;appearance:none;background:var(--bg4);border-radius:7px;cursor:pointer;outline:none}
+.bgv-vol::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;background:var(--p);border-radius:50%;cursor:pointer}
+.bgv-vol::-moz-range-thumb{width:10px;height:10px;background:var(--p);border-radius:50%;cursor:pointer;border:none}
+.vs-head{font-size:9px;color:var(--t3);margin-bottom:2px;display:flex;justify-content:space-between}
+.vs-text{font-size:11px;color:var(--t1);line-height:1.5;font-family:'Amiri Quran',serif;direction:rtl;text-align:right}
+.vs-text mark{background:rgba(240,200,66,.35);color:var(--t1);padding:0 2px;border-radius:2px}
+.vs-empty{padding:10px;text-align:center;color:var(--t3);font-size:10px}
+.vs-loading{padding:10px;text-align:center;color:var(--info);font-size:10px}
+.fc:focus{outline:none;border-color:var(--pl);box-shadow:0 0 0 2px rgba(26,138,82,.12)}
+.fc option,.fc optgroup{background:var(--bg3)}
+.sg{display:flex;align-items:center;gap:6px}
+.sg input[type=range]{flex:1;-webkit-appearance:none;height:3px;background:var(--b1);border-radius:6px;outline:none;cursor:pointer}
+.sg input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;background:var(--a);border-radius:50%;cursor:pointer;box-shadow:0 0 5px rgba(201,162,39,.4)}
+.sv{min-width:30px;text-align:center;font-size:9.5px;color:var(--al);font-weight:700}
+.cpg{display:flex;align-items:center;gap:5px;direction:ltr}
+.cpg input[type=color]{width:27px;height:27px;border:1.5px solid var(--b1);border-radius:5px;cursor:pointer;background:none;padding:1px;flex-shrink:0;order:-1}
+#panel .cpg{flex-direction:row-reverse;direction:rtl}
+#panel .cpg input[type=color]{order:0}
+
+/* RADIO CARDS */
+.rg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.rg.c2{grid-template-columns:repeat(2,1fr)}
+.rg.c4{grid-template-columns:repeat(4,1fr)}
+.rc input{display:none}
+.rc label{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:5px 2px;background:var(--bg3);border:1px solid var(--b1);border-radius:var(--r);cursor:pointer;transition:var(--tr);font-size:9px;color:var(--t2);text-align:center;line-height:1.3}
+.rc label .ri{font-size:13px}
+.rc input:checked+label{background:rgba(10,92,54,.28);border-color:var(--pl);color:var(--al)}
+.rcg{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:5px}
+.rcg input[type=radio]{display:none}
+.rcg label{display:block;padding:7px 4px;border:1px solid var(--b1);border-radius:var(--r);font-size:10px;text-align:center;cursor:pointer;transition:var(--tr);color:var(--t2)}
+.rcg input[type=radio]:checked+label{background:rgba(10,92,54,.28);border-color:var(--pl);color:var(--al);font-weight:700}
+.rc label:hover{border-color:var(--b2);color:var(--t1)}
+
+/* TOGGLES */
+.tgg{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(26,46,30,.5)}
+.tgg:last-child{border-bottom:none}
+.tgl{font-size:10px;color:var(--t2)}
+.tg{position:relative;width:34px;height:18px;flex-shrink:0}
+.tg input{display:none}
+.tgs{position:absolute;inset:0;background:var(--bg4);border:1px solid var(--b1);border-radius:18px;cursor:pointer;transition:var(--tr)}
+.tgs::before{content:'';position:absolute;width:12px;height:12px;background:var(--t4);border-radius:50%;top:2px;right:2px;transition:var(--tr)}
+.tg input:checked+.tgs{background:var(--p);border-color:var(--pl)}
+.tg input:checked+.tgs::before{right:calc(100% - 14px);background:#fff}
+
+/* BUTTONS */
+.btn{padding:6px 11px;border:none;border-radius:var(--r);cursor:pointer;font-family:var(--fu);font-size:10.5px;font-weight:700;transition:var(--tr);display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.btn-p{background:linear-gradient(135deg,var(--pd),var(--pl));color:#fff}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(10,92,54,.45)}
+.btn-a{background:linear-gradient(135deg,var(--ad),var(--al));color:#050505}
+.btn-a:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(201,162,39,.4)}
+.btn-g{background:var(--bg3);border:1px solid var(--b1);color:var(--t2)}
+.btn-g:hover{border-color:var(--pl);color:var(--t1)}
+.btn-d{background:rgba(224,80,80,.1);border:1px solid rgba(224,80,80,.3);color:var(--danger)}
+.bfw{width:100%;justify-content:center}
+.bsm{padding:4px 9px;font-size:9.5px}
+
+/* FILE UPLOAD */
+.fu-area{border:2px dashed var(--b1);border-radius:var(--r);padding:10px;text-align:center;cursor:pointer;transition:var(--tr);position:relative;overflow:hidden}
+.fu-area:hover{border-color:var(--pl);background:rgba(10,92,54,.04)}
+.fu-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.fu-icon{font-size:18px;margin-bottom:2px}
+.fu-txt{font-size:9.5px;color:var(--t3);line-height:1.5}
+
+/* FONT GRID */
+.font-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px}
+.font-card input{display:none}
+.font-card label{display:flex;flex-direction:column;align-items:center;padding:6px 4px;background:var(--bg3);border:1px solid var(--b1);border-radius:var(--r);cursor:pointer;transition:var(--tr);gap:2px}
+.font-card .fs{font-size:15px;color:var(--t1);line-height:1.2}
+.font-card .fn{font-size:8px;color:var(--t3);text-align:center}
+.font-card input:checked+label{border-color:var(--a);background:rgba(201,162,39,.07)}
+
+/* THEMES */
+.themes{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:2px}
+.tc-chip{padding:3px 8px;border-radius:12px;border:1px solid var(--b1);background:var(--bg3);color:var(--t2);font-size:9px;cursor:pointer;transition:var(--tr)}
+.tc-chip:hover{border-color:var(--pl);color:var(--t1)}
+.tc-chip.on{background:var(--p);border-color:var(--pl);color:#fff}
+
+/* RECITERS */
+.rctr-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.rctr-card input{display:none}
+.rctr-card label{display:flex;align-items:center;gap:5px;padding:6px 7px;background:var(--bg3);border:1px solid var(--b1);border-radius:var(--r);cursor:pointer;font-size:9.5px;color:var(--t2);transition:var(--tr);position:relative}
+.rctr-card .rf{font-size:13px}
+.rctr-card input:checked+label{border-color:var(--pl);color:var(--al);background:rgba(10,92,54,.22)}
+.edit-reciter, .del-reciter{position:absolute;font-size:12px;cursor:pointer;opacity:0.7;transition:opacity 0.2s;background:rgba(0,0,0,0.3);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center}
+.edit-reciter{left:24px;color:var(--info)}
+.del-reciter{left:4px;color:var(--danger)}
+.edit-reciter:hover, .del-reciter:hover{opacity:1}
+.add-reciter-form{background:var(--bg3);border:1px solid var(--b1);border-radius:var(--r);padding:9px;margin-top:7px;display:none}
+.add-reciter-form.on{display:block}
+.ar-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:5px}
+.note{font-size:8px;color:var(--info);margin-top:2px;display:block}
+
+/* TEMPLATES */
+.tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px}
+.tpl-card{background:var(--bg3);border:1px solid var(--b1);border-radius:var(--r);padding:7px}
+.tpl-card:hover{border-color:var(--pl)}
+.tpl-name{font-size:10px;font-weight:700;color:var(--t1)}
+.tpl-date{font-size:8px;color:var(--t3);margin-top:2px}
+.tpl-actions{display:flex;gap:3px;margin-top:5px}
+
+/* MODALS */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:400;display:none;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
+.modal-bg.on{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--b1);border-radius:var(--rl);padding:18px;width:390px;max-width:94vw;box-shadow:var(--sh)}
+.modal h3{font-size:13px;font-weight:800;color:var(--al);margin-bottom:11px}
+.modal-btns{display:flex;gap:7px;margin-top:13px;justify-content:flex-end}
+
+/* RECORDING */
+#rec-ov{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:500;display:none;flex-direction:column;align-items:center;justify-content:center;gap:13px;backdrop-filter:blur(8px)}
+#rec-ov.on{display:flex}
+.rec-t{font-size:18px;font-weight:800;color:var(--al)}
+.rec-sub{font-size:11px;color:var(--t2);text-align:center}
+.rec-bar{width:280px;height:6px;background:var(--b1);border-radius:6px;overflow:hidden}
+.rec-fill{height:100%;background:linear-gradient(90deg,var(--pl),var(--al));border-radius:6px;width:0%;transition:width .3s ease}
+
+/* TOAST */
+#toast-c{position:fixed;top:58px;left:12px;z-index:999;display:flex;flex-direction:column;gap:4px;pointer-events:none}
+.toast{background:var(--bg3);border:1px solid var(--b1);border-radius:var(--r);padding:7px 11px;font-size:10.5px;color:var(--t1);max-width:240px;box-shadow:var(--sh);pointer-events:auto;animation:toastIn .2s ease}
+.toast.success{border-color:var(--pl);background:rgba(10,92,54,.3)}
+.toast.error{border-color:var(--danger);background:rgba(224,80,80,.15)}
+.toast.info{border-color:var(--info);background:rgba(74,159,213,.12)}
+@keyframes toastIn{from{transform:translateX(-10px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* MISC */
+.badge-new{display:inline-flex;align-items:center;padding:1px 5px;border-radius:10px;font-size:8px;font-weight:700;background:rgba(74,159,213,.14);color:var(--info);border:1px solid rgba(74,159,213,.28)}
+.offline-badge{position:fixed;top:56px;right:10px;background:rgba(224,80,80,.9);color:#fff;padding:2px 8px;border-radius:12px;font-size:9px;display:none;z-index:300}
+body.offline .offline-badge{display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.about-logo{text-align:center;padding:14px 0 7px}
+.about-logo .al-icon{font-size:36px}
+.about-logo h2{font-size:17px;font-weight:900;color:var(--al);letter-spacing:2px}
+.about-logo p{font-size:9.5px;color:var(--t3);direction:ltr;margin-top:3px}
+.info-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(26,46,30,.5);font-size:10px}
+.info-row:last-child{border-bottom:none}
+.info-k{color:var(--t3)}
+.info-v{color:var(--t1);font-weight:600}
+.info-v a{color:var(--info);text-decoration:none}
+.credits{font-size:9px;color:var(--t4);text-align:center;margin-top:9px;line-height:1.9}
+.credits a{color:var(--t3)}
+#bg-img-thumb{display:none;margin-top:6px}
+#bg-img-thumb img{width:100%;border-radius:5px;max-height:60px;object-fit:cover}
+#bg-vid-thumb{display:none;margin-top:6px}
+#bg-vid-thumb video{width:100%;border-radius:5px;max-height:60px;object-fit:cover}
+#logo-preview{display:none;margin-top:6px;text-align:center}
+#logo-img-preview{max-width:100%;max-height:50px;border-radius:4px}
+
+/* MOBILE LAYOUT */
+#mob-toggle{display:none;min-width:36px;height:36px;padding:0 10px;border:1px solid var(--b1);border-radius:var(--r);background:var(--bg3);color:var(--t1);font-size:13px;font-weight:700;font-family:var(--fu);cursor:pointer;align-items:center;justify-content:center;gap:4px;flex-shrink:0;transition:var(--tr);white-space:nowrap}
+#mob-toggle:hover{border-color:var(--pl);color:var(--al)}
+#mob-toggle.active{background:rgba(10,92,54,.3);border-color:var(--pl);color:var(--al)}
+#mob-layout-bar{display:none;background:var(--bg1);border-bottom:1px solid var(--b1);padding:3px 10px;gap:5px;align-items:center;flex-shrink:0;z-index:150;height:34px}
+.mob-lay-btn{flex:1;height:26px;border:1px solid var(--b1);border-radius:var(--r);background:var(--bg3);color:var(--t2);font-size:9px;font-weight:700;cursor:pointer;font-family:var(--fu);transition:var(--tr);text-align:center;white-space:nowrap}
+.mob-lay-btn.on{background:rgba(10,92,54,.35);border-color:var(--pl);color:var(--al)}
+#mob-size-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:201;background:var(--bg1);border-top:1px solid var(--b2);padding:3px 12px;align-items:center;gap:8px}
+#mob-size-bar input[type=range]{flex:1;accent-color:var(--p)}
+#mob-size-bar span{font-size:9px;color:var(--t3);white-space:nowrap;min-width:30px;text-align:center}
+#mob-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:190;backdrop-filter:blur(2px)}
+#mob-backdrop.on{display:block}
+
+@media(max-width:760px){
+  body{overflow:hidden}
+  #mob-toggle{display:flex}
+  #mob-layout-bar{display:flex}
+  .logo-text small{display:none}
+  .ex-info{display:none}
+  #app{grid-template-columns:1fr;position:relative;overflow:hidden}
+  #preview{position:absolute;inset:0;padding:6px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  #panel{position:fixed;left:0;right:0;bottom:0;height:var(--panel-h, 62vh);z-index:200;border-top:2px solid var(--pl);border-left:none;border-radius:16px 16px 0 0;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1),height .2s;box-shadow:0 -8px 32px rgba(0,0,0,.7);overflow:hidden}
+  #panel.mob-open{transform:translateY(0)}
+  #panel.mob-open ~ #mob-size-bar{display:flex}
+  body.mob-horiz #panel{position:fixed;top:0;bottom:0;right:0;left:auto;width:var(--panel-w, 52vw);height:auto;border-top:none;border-left:2px solid var(--pl);border-radius:0;transform:translateX(100%);transition:transform .3s cubic-bezier(.32,.72,0,1),width .2s}
+  body.mob-horiz #panel.mob-open{transform:translateX(0)}
+  body.mob-horiz #panel ~ #mob-size-bar{display:flex}
+  body.mob-horiz #panel ~ #mob-size-bar input{accent-color:var(--p)}
+  #panel-handle{display:flex}
+  body.mob-horiz #panel-handle{display:none}
+  .cw{max-width:calc(100vw - 12px);max-height:calc(100vh - 130px)}
+  #cv{max-width:100%;max-height:100%}
+  #exbar{padding:0 8px}
+}
+
+@media(max-width:480px){
+  #hdr{padding:0 9px;height:54px}
+  #exbar{padding:0 6px;gap:3px}
+  .hdr-r .btn span{display:none}
+  .logo-icon{width:42px;height:42px}
+  .logo-text h1{font-size:13px}
+  .btn-a,.btn-p{padding:5px 8px;font-size:9px}
+  .btn-a span,.btn-p span{display:none}
+  .tabs .tab-btn span:not(.ti){display:none}
+}
+#panel-handle{display:none;height:22px;flex-shrink:0;cursor:grab;align-items:center;justify-content:center}
+#panel-handle::after{content:'';display:block;width:38px;height:4px;background:var(--b2);border-radius:2px}
+@media(max-width:760px){#panel-handle{display:flex}}
+</style>
+</head>
+<body>
+
+<div class="offline-badge">📵 غير متصل</div>
+<div id="mob-backdrop"></div>
+<div id="mob-size-bar">
+  <span style="font-size:10px">📐</span>
+  <input type="range" id="panel-size-slider" min="30" max="90" value="62">
+  <span id="panel-size-lbl">62٪</span>
+</div>
+<div id="toast-c"></div>
+
+<div id="rec-ov">
+  <div class="rec-t">⏺ تصدير الفيديو…</div>
+  <div class="rec-sub" id="rec-sub">يرجى الانتظار</div>
+  <div class="rec-bar"><div class="rec-fill" id="rec-fill"></div></div>
+  <div class="rec-sub" id="rec-pct">0%</div>
+  <div class="rec-sub" style="font-size:8px;color:var(--t3);margin-top:4px;opacity:.7">
+    🔇 المعاينة صامتة أثناء V2 (الصوت يُخلط في الخلفية تلقائياً)
+  </div>
+  <button class="btn btn-d bsm" id="cancel-export-btn">✕ إلغاء</button>
+</div>
+
+<div class="modal-bg" id="tpl-modal">
+  <div class="modal">
+    <h3>💾 حفظ القالب</h3>
+    <div class="fg"><label class="fl">اسم القالب</label><input type="text" class="fc" id="tpl-name-inp" placeholder="مثال: ريلز رمضان الذهبي"></div>
+    <div class="modal-btns">
+      <button class="btn btn-g" id="close-tpl-modal-btn">إلغاء</button>
+      <button class="btn btn-a" id="confirm-save-template-btn">💾 حفظ</button>
+    </div>
+  </div>
+</div>
+
+<header id="hdr">
+  <div class="logo">
+    <div class="logo-icon" id="logo-icon">
+      <img src="GT-SQR-icons/all/512x512/gt-sqr-icon.png" alt="GT-SQR" onerror="this.style.display='none';document.querySelector('.logo-icon .fi').style.display='block'">
+      <span class="fi">📿</span>
+    </div>
+    <div class="logo-text">
+      <h1>GT-SQR</h1>
+      <small>GnuTux Short Quran Reels v3.0</small>
+    </div>
+  </div>
+  <div class="hdr-r">
+    <button class="btn btn-g bsm" id="open-tpl-modal-btn">💾 <span>حفظ</span></button>
+    <button class="btn btn-g bsm" id="go-tpl-tab-btn">📂 <span>القوالب</span></button>
+    <button id="mob-toggle" title="الأدوات">🛠 الأدوات</button>
+  </div>
+</header>
+
+<div id="mob-layout-bar">
+  <span style="font-size:9px;color:var(--t3);white-space:nowrap">📱 عرض:</span>
+  <button class="mob-lay-btn on" id="lay-vert">⬆ عمودي</button>
+  <button class="mob-lay-btn" id="lay-horiz">⬅ أفقي</button>
+  <button class="mob-lay-btn" id="lay-full" style="max-width:70px">⛶ كامل</button>
+</div>
+
+<div id="app">
+
+  <div id="panel">
+    <div id="panel-handle"></div>
+    <div class="tabs">
+      <button class="tab-btn on" data-tab="rec"><span class="ti">📖</span><span>التلاوة</span></button>
+      <button class="tab-btn" data-tab="scene"><span class="ti">🎬</span><span>المشهد</span></button>
+      <button class="tab-btn" data-tab="txt"><span class="ti">✍️</span><span>النصوص</span></button>
+      <button class="tab-btn" data-tab="mix"><span class="ti">🎵</span><span>المزج</span></button>
+      <button class="tab-btn" data-tab="fx"><span class="ti">⚡</span><span>التأثيرات</span></button>
+      <button class="tab-btn" data-tab="tpl"><span class="ti">📂</span><span>القوالب</span></button>
+      <button class="tab-btn" data-tab="settings"><span class="ti">⚙️</span><span>إعدادات</span></button>
+      <button class="tab-btn" data-tab="about"><span class="ti">ℹ️</span><span>عن</span></button>
+    </div>
+
+    <div class="tc">
+
+      <!-- RECITATION -->
+      <div class="tp on" id="tab-rec">
+        <div class="sec">
+          <div class="sec-t">📖 السورة والآيات</div>
+          <div class="fg" style="display:flex;gap:5px;align-items:center;margin-bottom:5px">
+            <input type="text" class="fc" id="verse-search-inp" placeholder="🔍 ابحث في الآيات (بدون تشكيل)…" style="flex:1">
+            <button class="btn btn-g bsm" id="verse-search-clear-btn" title="مسح" style="display:none">✕</button>
+          </div>
+          <div id="verse-search-results" style="display:none;max-height:240px;overflow-y:auto;border:1px solid var(--b1);border-radius:var(--r);background:var(--bg1);margin-bottom:6px"></div>
+          <div class="fg" style="margin-bottom:5px">
+            <input type="text" class="fc" id="surah-search" placeholder="🔍 ابحث عن سورة... (بالعربية أو الإنجليزية)">
+          </div>
+          <div class="fg"><label class="fl">السورة الكريمة</label><select class="fc" id="surah-sel"></select></div>
+          <div class="grid2">
+            <div class="fg"><label class="fl">من الآية</label><input type="number" class="fc" id="from-aya" min="1" value="1"></div>
+            <div class="fg"><label class="fl">إلى الآية</label><input type="number" class="fc" id="to-aya" min="1" value="7"></div>
+          </div>
+          <div id="aya-info" style="font-size:9px;color:var(--t3);margin-bottom:5px"></div>
+          <button class="btn btn-p bsm bfw" id="load-verses-btn">🔄 تحميل الآيات</button>
+        </div>
+
+        <div class="sec">
+          <div class="sec-t">🎤 القارئ</div>
+          <div class="rctr-grid" id="reciters-grid"></div>
+          <div style="margin-top:7px"><button class="btn btn-g bsm bfw" id="toggle-add-reciter-btn">➕ إضافة قارئ آخر</button></div>
+          <div class="add-reciter-form" id="add-reciter-form">
+            <div class="ar-grid">
+              <div class="fg"><label class="fl">الاسم</label><input type="text" class="fc" id="ar-name" placeholder="اسم القارئ"></div>
+              <div class="fg"><label class="fl">الدولة / العلم</label>
+                <select class="fc" id="ar-flag">
+                  <option value="🇸🇦" selected>🇸🇦 السعودية</option>
+                  <option value="🇪🇬">🇪🇬 مصر</option>
+                  <option value="🇦🇪">🇦🇪 الإمارات</option>
+                  <option value="🇰🇼">🇰🇼 الكويت</option>
+                  <option value="🇶🇦">🇶🇦 قطر</option>
+                  <option value="🇧🇭">🇧🇭 البحرين</option>
+                  <option value="🇴🇲">🇴🇲 عُمان</option>
+                  <option value="🇾🇪">🇾🇪 اليمن</option>
+                  <option value="🇮🇶">🇮🇶 العراق</option>
+                  <option value="🇸🇾">🇸🇾 سوريا</option>
+                  <option value="🇱🇧">🇱🇧 لبنان</option>
+                  <option value="🇯🇴">🇯🇴 الأردن</option>
+                  <option value="🇵🇸">🇵🇸 فلسطين</option>
+                  <option value="🇱🇾">🇱🇾 ليبيا</option>
+                  <option value="🇹🇳">🇹🇳 تونس</option>
+                  <option value="🇩🇿">🇩🇿 الجزائر</option>
+                  <option value="🇲🇦">🇲🇦 المغرب</option>
+                  <option value="🇲🇷">🇲🇷 موريتانيا</option>
+                  <option value="🇸🇩">🇸🇩 السودان</option>
+                  <option value="🇸🇴">🇸🇴 الصومال</option>
+                  <option value="🇵🇰">🇵🇰 باكستان</option>
+                  <option value="🇦🇫">🇦🇫 أفغانستان</option>
+                  <option value="🇮🇷">🇮🇷 إيران</option>
+                  <option value="🇹🇷">🇹🇷 تركيا</option>
+                  <option value="🇮🇩">🇮🇩 إندونيسيا</option>
+                  <option value="🇲🇾">🇲🇾 ماليزيا</option>
+                </select>
+              </div>
+            </div>
+            <div class="fg"><label class="fl">مجلد EveryAyah — <a href="https://everyayah.com/data/" target="_blank" style="color:var(--info);font-size:8px">قائمة المجلدات ↗</a></label><input type="text" class="fc" id="ar-folder" placeholder="Alafasy_128kbps"></div>
+            <span class="note">📁 أدخل اسم المجلد فقط (مثل Alafasy_128kbps) وليس الرابط الكامل</span>
+            <button class="btn btn-p bsm bfw" id="add-custom-reciter-btn">✅ إضافة / تحديث</button>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-t">📐 مقاس الفيديو</div>
+          <div class="rg">
+            <div class="rc"><input type="radio" name="fmt" id="f1" value="9:16" checked><label for="f1"><span class="ri">📱</span><span>ريلز 9:16</span></label></div>
+            <div class="rc"><input type="radio" name="fmt" id="f2" value="16:9"><label for="f2"><span class="ri">💻</span><span>يوتيوب 16:9</span></label></div>
+            <div class="rc"><input type="radio" name="fmt" id="f3" value="1:1"><label for="f3"><span class="ri">🟦</span><span>مربع 1:1</span></label></div>
+            <div class="rc"><input type="radio" name="fmt" id="f4" value="4:5"><label for="f4"><span class="ri">📸</span><span>عمودي 4:5</span></label></div>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-t">⏱️ التوقيت</div>
+          <div class="tgg"><span class="tgl">مدة تلقائية حسب الصوت</span><label class="tg"><input type="checkbox" id="auto-dur" checked><span class="tgs"></span></label></div>
+          <div id="manual-dur" style="display:none;padding-top:5px">
+            <label class="fl">مدة كل آية (ثانية)</label>
+            <div class="sg"><input type="range" min="2" max="25" step=".5" value="6" id="aya-dur"><span class="sv" id="aya-dur-v">6s</span></div>
+          </div>
+          <div class="fg" style="margin-top:6px"><label class="fl">مدة الانتقال</label><div class="sg"><input type="range" min="0" max="3" step=".1" value=".5" id="trans-dur"><span class="sv" id="trans-dur-v">.5s</span></div></div>
+          <div class="fg" style="margin-top:6px"><label class="fl">🤫 فاصل صمت بين الآيات</label><div class="sg"><input type="range" min="0" max="3" step=".1" value="0" id="aya-gap"><span class="sv" id="aya-gap-v">0s</span></div></div>
+          <span class="note" style="display:block;margin-top:2px">صمت إضافي بعد كل آية قبل بدء التالية — مفيد لإيقاع التلاوة الطبيعي</span>
+        </div>
+      </div>
+
+      <!-- SCENE -->
+      <div class="tp" id="tab-scene">
+        <div class="sec">
+          <div class="sec-t">🎨 ثيم جاهز</div>
+          <div class="themes" id="theme-chips"></div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">🖼️ نوع الخلفية</div>
+          <div class="rg">
+            <div class="rc"><input type="radio" name="bgt" id="bgt1" value="gradient" checked><label for="bgt1"><span class="ri">🎨</span><span>تدرج</span></label></div>
+            <div class="rc"><input type="radio" name="bgt" id="bgt2" value="image"><label for="bgt2"><span class="ri">🖼️</span><span>صورة</span></label></div>
+            <div class="rc"><input type="radio" name="bgt" id="bgt3" value="video"><label for="bgt3"><span class="ri">🎥</span><span>فيديو</span></label></div>
+          </div>
+          <div id="bg-grad-ctrl" style="margin-top:8px">
+            <div class="grid2">
+              <div class="fg"><label class="fl">اللون 1</label><div class="cpg"><input type="color" id="gc1" value="#0a2e1e"><input type="text" class="fc" id="gc1t" value="#0a2e1e" style="flex:1"></div></div>
+              <div class="fg"><label class="fl">اللون 2</label><div class="cpg"><input type="color" id="gc2" value="#020d06"><input type="text" class="fc" id="gc2t" value="#020d06" style="flex:1"></div></div>
+            </div>
+            <div class="fg"><label class="fl">الاتجاه</label><select class="fc" id="grad-dir"><option value="tb">⬇️ أعلى→أسفل</option><option value="bt">⬆️ أسفل→أعلى</option><option value="diag">↘️ قطري</option><option value="rdiag">↙️ قطري معكوس</option><option value="radial">⭕ دائري</option></select></div>
+          </div>
+          <div id="bg-img-ctrl" style="display:none;margin-top:8px">
+            <div class="fu-area"><input type="file" accept="image/*" id="bg-img-input"><div class="fu-icon">🖼️</div><div class="fu-txt">صورة الخلفية<br><small>JPG · PNG · WebP · GIF · BMP · AVIF</small></div></div>
+            <div id="bg-img-thumb"><img id="bg-img-preview" alt=""></div>
+          </div>
+          <div id="bg-vid-ctrl" style="display:none;margin-top:8px">
+            <div class="fu-area"><input type="file" accept="video/*" id="bg-vid-input" multiple><div class="fu-icon">🎥</div><div class="fu-txt">فيديو خلفية (يمكن رفع عدة مقاطع)<br><small>تُشغَّل بالتسلسل ثم تعود من البداية</small></div></div>
+            <div id="bg-vid-list" style="margin-top:6px"></div>
+            <div class="fg" style="margin-top:5px"><label class="fl">مدة الانتقال السلس بين المقاطع</label>
+              <div class="sg"><input type="range" min="0" max="2000" step="50" value="1000" id="bg-crossfade-ms"><span class="sv" id="bg-crossfade-ms-v">1000ms</span></div>
+            </div>
+            <div id="bg-vid-thumb"><video id="bg-vid-preview" muted loop playsinline></video></div>
+            <div id="bg-vid-info" style="font-size:9px;color:var(--t3);margin-top:3px"></div>
+            <div class="tgg" style="margin-top:7px">
+              <span class="tgl">✂️ تقطيع نطاق زمني (يُطبَّق على المقطع الأول فقط)</span>
+              <label class="tg"><input type="checkbox" id="bg-vid-trim-on"><span class="tgs"></span></label>
+            </div>
+            <div id="bg-vid-trim-row" style="display:none;margin-top:5px">
+              <div class="grid2">
+                <div class="fg"><label class="fl">من (ث)</label><input type="number" class="fc" id="bg-vid-trim-start" min="0" step="0.1" value="0"></div>
+                <div class="fg"><label class="fl">إلى (ث)</label><input type="number" class="fc" id="bg-vid-trim-end" min="0.1" step="0.1" value="10"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">🎞️ حركة الخلفية</div>
+          <div class="rg c2">
+            <div class="rc"><input type="radio" name="bgm" id="bgm1" value="static" checked><label for="bgm1"><span class="ri">⏸️</span><span>ثابت</span></label></div>
+            <div class="rc"><input type="radio" name="bgm" id="bgm2" value="drift"><label for="bgm2"><span class="ri">🎬</span><span>زحف</span></label></div>
+            <div class="rc"><input type="radio" name="bgm" id="bgm3" value="zoom"><label for="bgm3"><span class="ri">🔍</span><span>تكبير</span></label></div>
+            <div class="rc"><input type="radio" name="bgm" id="bgm4" value="pan"><label for="bgm4"><span class="ri">↔️</span><span>تحريك</span></label></div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">🌈 أنماط اللون</div>
+          <div class="rg c2">
+            <div class="rc"><input type="radio" name="cf" id="cf1" value="none" checked><label for="cf1"><span class="ri">🌿</span><span>طبيعي</span></label></div>
+            <div class="rc"><input type="radio" name="cf" id="cf2" value="bw"><label for="cf2"><span class="ri">⬛</span><span>أبيض وأسود</span></label></div>
+            <div class="rc"><input type="radio" name="cf" id="cf3" value="warm"><label for="cf3"><span class="ri">🔥</span><span>دافئ</span></label></div>
+            <div class="rc"><input type="radio" name="cf" id="cf4" value="cold"><label for="cf4"><span class="ri">❄️</span><span>بارد</span></label></div>
+            <div class="rc"><input type="radio" name="cf" id="cf5" value="sepia"><label for="cf5"><span class="ri">📜</span><span>سيبيا</span></label></div>
+            <div class="rc"><input type="radio" name="cf" id="cf6" value="negative"><label for="cf6"><span class="ri">🌓</span><span>سالب</span></label></div>
+            <div class="rc"><input type="radio" name="cf" id="cf7" value="saturated"><label for="cf7"><span class="ri">🎨</span><span>مشبع</span></label></div>
+            <div class="rc"><input type="radio" name="cf" id="cf8" value="faded"><label for="cf8"><span class="ri">🌫️</span><span>باهت</span></label></div>
+            <div class="rc"><input type="radio" name="cf" id="cf9" value="dreamy"><label for="cf9"><span class="ri">☁️</span><span>حالم</span></label></div>
+            <div class="rc"><input type="radio" name="cf" id="cf10" value="night"><label for="cf10"><span class="ri">🌙</span><span>ليلي</span></label></div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">🕌 الزخارف</div>
+          <div class="rg">
+            <div class="rc"><input type="radio" name="orn" id="or0" value="none" checked><label for="or0"><span class="ri">○</span><span>بدون</span></label></div>
+            <div class="rc"><input type="radio" name="orn" id="or1" value="hex"><label for="or1"><span class="ri">⬡</span><span>سداسي</span></label></div>
+            <div class="rc"><input type="radio" name="orn" id="or2" value="geo"><label for="or2"><span class="ri">✦</span><span>هندسي</span></label></div>
+            <div class="rc"><input type="radio" name="orn" id="or3" value="stars"><label for="or3"><span class="ri">⭐</span><span>نجوم</span></label></div>
+            <div class="rc"><input type="radio" name="orn" id="or4" value="arch"><label for="or4"><span class="ri">🕌</span><span>قوس</span></label></div>
+            <div class="rc"><input type="radio" name="orn" id="or5" value="frame"><label for="or5"><span class="ri">🖼</span><span>إطار</span></label></div>
+          </div>
+          <div style="margin-top:7px">
+            <div class="fg"><label class="fl">شفافية الزخرفة</label><div class="sg"><input type="range" min="0" max="100" value="20" id="orn-op"><span class="sv" id="orn-op-v">20%</span></div></div>
+            <div class="fg"><label class="fl">لون الزخرفة</label><div class="cpg"><input type="color" id="orn-col" value="#c9a227"></div></div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">🔅 الإضاءة</div>
+          <div class="fg"><label class="fl">تعتيم</label><div class="sg"><input type="range" min="0" max="90" value="50" id="dim"><span class="sv" id="dim-v">50%</span></div></div>
+          <div class="fg"><label class="fl">سطوع</label><div class="sg"><input type="range" min="50" max="200" value="100" id="bright"><span class="sv" id="bright-v">100%</span></div></div>
+          <div class="fg"><label class="fl">تشبع</label><div class="sg"><input type="range" min="0" max="200" value="100" id="satur"><span class="sv" id="satur-v">100%</span></div></div>
+        </div>
+      </div>
+
+      <!-- TEXTS -->
+      <div class="tp" id="tab-txt">
+        <div class="sec">
+          <div class="sec-t">📿 اسم السورة (عنوان علوي)</div>
+          <div class="tgg">
+            <span class="tgl">إظهار اسم السورة في الأعلى</span>
+            <label class="tg"><input type="checkbox" id="sname-on"><span class="tgs"></span></label>
+          </div>
+          <div id="sname-ctrl" style="display:none;padding-top:5px">
+            <div class="grid2">
+              <div class="fg"><label class="fl">الموضع العمودي</label><div class="sg"><input type="range" min="0" max="25" step="0.5" value="5" id="sname-y"><span class="sv" id="sname-y-v">5%</span></div></div>
+              <div class="fg"><label class="fl">حجم الخط</label><div class="sg"><input type="range" min="30" max="200" step="5" value="80" id="sname-size"><span class="sv" id="sname-size-v">80%</span></div></div>
+            </div>
+            <div class="grid2">
+              <div class="fg"><label class="fl">اللون</label><div class="cpg"><input type="color" id="sname-col" value="#f0c842"></div></div>
+              <div class="fg"><label class="fl">البادئة</label>
+                <select class="fc" id="sname-prefix">
+                  <option value="surah" selected>سُورَةُ [الاسم]</option>
+                  <option value="bare">[الاسم] فقط</option>
+                  <option value="hizb">حِزْبُ [الاسم]</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">🖋️ الخط</div>
+          <div style="display:flex;align-items:center;gap:5px;margin-bottom:6px">
+            <span style="font-size:9px;color:var(--t3);flex:1">من مجلد <code style="color:var(--al)">fonts/</code></span>
+            <button class="btn btn-g bsm" id="refresh-fonts-btn">🔄 تحديث الخطوط</button>
+          </div>
+          <div class="font-grid" id="font-grid"></div>
+          <div class="fu-area"><input type="file" accept=".ttf,.otf,.woff,.woff2" multiple id="custom-fonts-input"><div class="fu-icon">➕</div><div class="fu-txt">رفع خط مخصص <span class="badge-new">جديد</span><br><small>TTF · OTF · WOFF · WOFF2</small></div></div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">🎨 تنسيق النص</div>
+          <div class="grid2">
+            <div class="fg"><label class="fl">لون النص</label><div class="cpg"><input type="color" id="txt-col" value="#ffffff"></div></div>
+            <div class="fg"><label class="fl">لون الظل</label><div class="cpg"><input type="color" id="shd-col" value="#000000"></div></div>
+          </div>
+          <div class="fg"><label class="fl">حجم الخط</label><div class="sg"><input type="range" min="40" max="200" value="100" id="fsize"><span class="sv" id="fsize-v">100%</span></div></div>
+          <div class="fg"><label class="fl">ارتفاع السطر</label><div class="sg"><input type="range" min="1" max="3" step=".1" value="1.6" id="lh"><span class="sv" id="lh-v">1.6</span></div></div>
+          <div class="fg"><label class="fl">موضع النص</label><div class="rg"><div class="rc"><input type="radio" name="tpos" id="tp1" value="top"><label for="tp1"><span class="ri">⬆</span><span>أعلى</span></label></div><div class="rc"><input type="radio" name="tpos" id="tp2" value="center" checked><label for="tp2"><span class="ri">⬛</span><span>وسط</span></label></div><div class="rc"><input type="radio" name="tpos" id="tp3" value="bottom"><label for="tp3"><span class="ri">⬇</span><span>أسفل</span></label></div></div></div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">✨ تأثير النص</div>
+          <div class="rg c2">
+            <div class="rc"><input type="radio" name="te" id="te0" value="none" checked><label for="te0"><span class="ri">○</span><span>بدون</span></label></div>
+            <div class="rc"><input type="radio" name="te" id="te-soft" value="soft"><label for="te-soft"><span class="ri">☁️</span><span>ظل ناعم</span></label></div>
+            <div class="rc"><input type="radio" name="te" id="te1" value="glow"><label for="te1"><span class="ri">✨</span><span>توهج ذهبي</span></label></div>
+            <div class="rc"><input type="radio" name="te" id="te2" value="neon"><label for="te2"><span class="ri">💡</span><span>نيون</span></label></div>
+            <div class="rc"><input type="radio" name="te" id="te3" value="outline"><label for="te3"><span class="ri">⭕</span><span>حدود</span></label></div>
+            <div class="rc"><input type="radio" name="te" id="te4" value="shadow3d"><label for="te4"><span class="ri">🎲</span><span>ظل 3D</span></label></div>
+            <div class="rc"><input type="radio" name="te" id="te5" value="emboss"><label for="te5"><span class="ri">💎</span><span>منقوش</span></label></div>
+            <div class="rc"><input type="radio" name="te" id="te-carved" value="carved"><label for="te-carved"><span class="ri">🗿</span><span>محفور</span></label></div>
+            <div class="rc"><input type="radio" name="te" id="te-gold" value="gold"><label for="te-gold"><span class="ri">🏅</span><span>ذهبي معدني</span></label></div>
+            <div class="rc"><input type="radio" name="te" id="te-fire" value="fire"><label for="te-fire"><span class="ri">🔥</span><span>ناري</span></label></div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">🎭 ظهور الآيات</div>
+          <div class="rg c2">
+            <div class="rc"><input type="radio" name="tanim" id="ta0" value="none"><label for="ta0"><span class="ri">⚡</span><span>مباشر</span></label></div>
+            <div class="rc"><input type="radio" name="tanim" id="ta1" value="fade" checked><label for="ta1"><span class="ri">🌅</span><span>تلاشي</span></label></div>
+            <div class="rc"><input type="radio" name="tanim" id="ta2" value="slide"><label for="ta2"><span class="ri">➡️</span><span>انزلاق</span></label></div>
+            <div class="rc"><input type="radio" name="tanim" id="ta3" value="zoom"><label for="ta3"><span class="ri">🔍</span><span>تكبير</span></label></div>
+            <div class="rc"><input type="radio" name="tanim" id="ta5" value="drop"><label for="ta5"><span class="ri">⬇️</span><span>سقوط</span></label></div>
+            <div class="rc"><input type="radio" name="tanim" id="ta6" value="rise"><label for="ta6"><span class="ri">⬆️</span><span>صعود</span></label></div>
+            <div class="rc"><input type="radio" name="tanim" id="ta7" value="blur"><label for="ta7"><span class="ri">🌫️</span><span>ضبابي</span></label></div>
+            <div class="rc"><input type="radio" name="tanim" id="ta8" value="glow"><label for="ta8"><span class="ri">✨</span><span>توهج</span></label></div>
+            <div class="rc"><input type="radio" name="tanim" id="ta4" value="word"><label for="ta4"><span class="ri">📿</span><span>كلمة-بكلمة</span></label></div>
+            <div class="rc"><input type="radio" name="tanim" id="ta9" value="mix"><label for="ta9"><span class="ri">🎲</span><span>مختلط</span></label></div>
+          </div>
+          <div class="mix-anims-ctrl" style="display:none;margin-top:8px;padding:7px;background:var(--bg3);border:1px solid var(--b1);border-radius:var(--r)">
+            <div class="note" style="margin-bottom:5px">اختر التأثيرات (الترتيب حسب الاختيار):</div>
+            <div class="rg c2">
+              <label class="tgg" style="cursor:pointer"><input type="checkbox" class="mix-anim" value="fade"><span class="tgl"><span class="mix-num"></span> 🌅 تلاشي</span></label>
+              <label class="tgg" style="cursor:pointer"><input type="checkbox" class="mix-anim" value="slide"><span class="tgl"><span class="mix-num"></span> ➡️ انزلاق</span></label>
+              <label class="tgg" style="cursor:pointer"><input type="checkbox" class="mix-anim" value="zoom"><span class="tgl"><span class="mix-num"></span> 🔍 تكبير</span></label>
+              <label class="tgg" style="cursor:pointer"><input type="checkbox" class="mix-anim" value="drop"><span class="tgl"><span class="mix-num"></span> ⬇️ سقوط</span></label>
+              <label class="tgg" style="cursor:pointer"><input type="checkbox" class="mix-anim" value="rise"><span class="tgl"><span class="mix-num"></span> ⬆️ صعود</span></label>
+              <label class="tgg" style="cursor:pointer"><input type="checkbox" class="mix-anim" value="blur"><span class="tgl"><span class="mix-num"></span> 🌫️ ضبابي</span></label>
+              <label class="tgg" style="cursor:pointer"><input type="checkbox" class="mix-anim" value="glow"><span class="tgl"><span class="mix-num"></span> ✨ توهج</span></label>
+              <label class="tgg" style="cursor:pointer"><input type="checkbox" class="mix-anim" value="word"><span class="tgl"><span class="mix-num"></span> 📿 كلمة-بكلمة</span></label>
+            </div>
+            <div class="note mix-anims-summary" style="margin-top:5px;color:var(--pl)">— اختر تأثيراً أو أكثر —</div>
+          </div>
+          <div id="word-mode-ctrl" style="display:none;margin-top:6px">
+            <div class="fg"><label class="fl">إيقاع الكلمات</label>
+              <select class="fc" id="word-pace">
+                <option value="auto" selected>تلقائي (مزامنة مع مدة الآية)</option>
+                <option value="0.35">سريع (0.35 ث/كلمة)</option>
+                <option value="0.5">متوسط (0.5 ث/كلمة)</option>
+                <option value="0.75">بطيء (0.75 ث/كلمة)</option>
+                <option value="1.0">بطيء جداً (1 ث/كلمة)</option>
+              </select>
+            </div>
+            <div class="tgg"><span class="tgl">إبقاء الكلمات السابقة معروضة</span><label class="tg"><input type="checkbox" id="word-keep" checked><span class="tgs"></span></label></div>
+            <div class="fg"><label class="fl">مدة تلاشي ظهور الكلمة</label>
+              <div class="sg"><input type="range" min="0" max="500" value="180" id="word-fade-ms"><span class="sv" id="word-fade-ms-v">180ms</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">🌍 الترجمة والتفسير</div>
+          <div class="fg"><select class="fc" id="trans-sel"><option value="none">بدون</option><optgroup label="تفسير عربي"><option value="ar.muyassar">التفسير الميسر</option><option value="ar.jalalayn">تفسير الجلالين</option></optgroup><optgroup label="ترجمات"><option value="en.sahih">English — Sahih International</option><option value="en.pickthall">English — Pickthall</option><option value="fr.hamidullah">Français — Hamidullah</option><option value="ur.ahmedali">اردو — احمد علی</option></optgroup></select></div>
+          <div id="trans-opts" style="display:none">
+            <div class="fg"><label class="fl">حجم خط الترجمة</label><div class="sg"><input type="range" min="25" max="100" value="55" id="tfs"><span class="sv" id="tfs-v">55%</span></div></div>
+            <div class="fg"><label class="fl">لون الترجمة</label><div class="cpg"><input type="color" id="trans-col" value="#cccccc"></div></div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">🏷️ العلامة المائية</div>
+          <div class="fg"><input type="text" class="fc" id="wm-text" placeholder="@قناتك"></div>
+          <div class="grid2">
+            <div class="fg"><label class="fl">الموضع</label><select class="fc" id="wm-pos"><option value="br">أسفل اليمين</option><option value="bl">أسفل اليسار</option><option value="tr">أعلى اليمين</option><option value="tl">أعلى اليسار</option></select></div>
+            <div class="fg"><label class="fl">الحجم</label><div class="sg"><input type="range" min="8" max="30" value="13" id="wm-size"><span class="sv" id="wm-size-v">13px</span></div></div>
+          </div>
+          <div class="fg"><label class="fl">اللون</label><div class="cpg"><input type="color" id="wm-col" value="#ffffff"></div></div>
+        </div>
+      </div>
+
+      <!-- MIX -->
+      <div class="tp" id="tab-mix">
+        <div class="sec">
+          <div class="sec-t">🎤 صوت التلاوة</div>
+          <div id="audio-status" style="font-size:9px;color:var(--t3);padding:5px 8px;background:var(--bg3);border-radius:var(--r);margin-bottom:7px;border:1px solid var(--b1)">يُحمَّل الصوت تلقائياً عند التشغيل</div>
+          <div class="fg"><label class="fl">مستوى القارئ</label><div class="sg"><span>🔇</span><input type="range" min="0" max="100" value="100" id="rec-vol"><span>🔊</span><span class="sv" id="rec-vol-v">100%</span></div></div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">🎵 صوت الخلفية</div>
+          <div class="fu-area"><input type="file" accept="audio/*" id="bg-audio-input"><div class="fu-icon">🎵</div><div class="fu-txt">رفع صوت خلفية<br><small>MP3 · AAC · OGG · FLAC · WAV</small></div></div>
+          <div id="bg-audio-info" style="font-size:9px;color:var(--t3);margin-top:5px"></div>
+          <div class="fg" style="margin-top:7px"><label class="fl">مستوى الخلفية</label><div class="sg"><span>🔇</span><input type="range" min="0" max="100" value="20" id="bg-vol"><span>🔊</span><span class="sv" id="bg-vol-v">20%</span></div></div>
+          <div class="tgg"><span class="tgl">تكرار صوت الخلفية</span><label class="tg"><input type="checkbox" id="bg-loop" checked><span class="tgs"></span></label></div>
+          <div class="tgg" style="margin-top:5px">
+            <span class="tgl">✂️ تقطيع نطاق صوت الخلفية</span>
+            <label class="tg"><input type="checkbox" id="bg-audio-trim-on"><span class="tgs"></span></label>
+          </div>
+          <div id="bg-audio-trim-row" style="display:none;margin-top:5px">
+            <div class="grid2">
+              <div class="fg"><label class="fl">من (ث)</label><input type="number" class="fc" id="bg-audio-trim-start" min="0" step="0.1" value="0"></div>
+              <div class="fg"><label class="fl">إلى (ث)</label><input type="number" class="fc" id="bg-audio-trim-end" min="0.1" step="0.1" value="30"></div>
+            </div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">🖼️ شعار مخصص</div>
+          <div class="fu-area">
+            <input type="file" accept="image/*,video/quicktime,video/mp4,.mov,.webm" id="logo-upload">
+            <div class="fu-icon">🖼️</div>
+            <div class="fu-txt">رفع شعار صورة أو فيديو<br><small>PNG · SVG · JPG · <strong>MOV</strong> (شفاف) · WebM</small></div>
+          </div>
+          <div id="logo-preview" style="display:none">
+            <img id="logo-img-preview" alt="" style="max-width:100%;max-height:50px;border-radius:4px">
+            <video id="logo-vid-preview" muted loop autoplay playsinline style="display:none;max-width:100%;max-height:60px;border-radius:4px;background:repeating-conic-gradient(#3a3a3a 0% 25%,#2a2a2a 0% 50%) 0/12px 12px"></video>
+          </div>
+          <div class="grid2" style="margin-top:7px;">
+            <div class="fg">
+              <label class="fl">الموضع</label>
+              <select class="fc" id="logo-pos">
+                <option value="tr" selected>أعلى اليمين</option>
+                <option value="tl">أعلى اليسار</option>
+                <option value="br">أسفل اليمين</option>
+                <option value="bl">أسفل اليسار</option>
+                <option value="center">الوسط</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label class="fl">الحجم</label>
+              <div class="sg">
+                <input type="range" min="10" max="200" value="60" id="logo-size">
+                <span class="sv" id="logo-size-v">60px</span>
+              </div>
+            </div>
+          </div>
+          <div class="fg">
+            <label class="fl">الشفافية</label>
+            <div class="sg">
+              <input type="range" min="0" max="100" value="80" id="logo-opacity">
+              <span class="sv" id="logo-opacity-v">80%</span>
+            </div>
+          </div>
+          <button class="btn btn-d bsm" id="remove-logo-btn" style="margin-top:5px;">🗑️ إزالة الشعار</button>
+        </div>
+        <div class="sec">
+          <div class="sec-t">📊 الموجات الصوتية</div>
+          <div class="tgg"><span class="tgl">تفعيل الموجات</span><label class="tg"><input type="checkbox" id="wave-on" checked><span class="tgs"></span></label></div>
+          <div class="fg" style="margin-top:7px"><label class="fl">شكل الموجة</label>
+            <div class="rg c2">
+              <div class="rc"><input type="radio" name="ws" id="ws1" value="bars" checked><label for="ws1"><span class="ri">📊</span><span>أعمدة</span></label></div>
+              <div class="rc"><input type="radio" name="ws" id="ws2" value="wave"><label for="ws2"><span class="ri">〰️</span><span>موجة</span></label></div>
+              <div class="rc"><input type="radio" name="ws" id="ws3" value="dots"><label for="ws3"><span class="ri">⠿</span><span>نقاط</span></label></div>
+              <div class="rc"><input type="radio" name="ws" id="ws4" value="mirror"><label for="ws4"><span class="ri">🪞</span><span>مرآة</span></label></div>
+              <div class="rc"><input type="radio" name="ws" id="ws5" value="circle"><label for="ws5"><span class="ri">⭕</span><span>دائرة</span></label></div>
+              <div class="rc"><input type="radio" name="ws" id="ws6" value="spectrum"><label for="ws6"><span class="ri">🌈</span><span>طيف</span></label></div>
+              <div class="rc"><input type="radio" name="ws" id="ws7" value="rays"><label for="ws7"><span class="ri">☀️</span><span>أشعة</span></label></div>
+              <div class="rc"><input type="radio" name="ws" id="ws8" value="triangles"><label for="ws8"><span class="ri">🔺</span><span>مثلثات</span></label></div>
+              <div class="rc"><input type="radio" name="ws" id="ws9" value="rings"><label for="ws9"><span class="ri">🎯</span><span>حلقات</span></label></div>
+              <div class="rc"><input type="radio" name="ws" id="ws10" value="mountains"><label for="ws10"><span class="ri">⛰️</span><span>جبال</span></label></div>
+            </div>
+          </div>
+          <div class="grid2">
+            <div class="fg"><label class="fl">اللون</label><div class="cpg"><input type="color" id="wave-col" value="#c9a227"></div></div>
+            <div class="fg"><label class="fl">الموضع</label><select class="fc" id="wave-pos"><option value="bottom">أسفل</option><option value="top">أعلى</option></select></div>
+          </div>
+          <div class="fg"><label class="fl">الارتفاع</label><div class="sg"><input type="range" min="10" max="250" value="40" id="wave-h"><span class="sv" id="wave-h-v">40px</span></div></div>
+          <div class="fg"><label class="fl">مضاعف الحساسية</label><div class="sg"><input type="range" min="50" max="300" step="10" value="100" id="wave-gain"><span class="sv" id="wave-gain-v">100%</span></div></div>
+        </div>
+      </div>
+
+      <!-- FX -->
+      <div class="tp" id="tab-fx">
+        <div class="sec">
+          <div class="sec-t">🎭 التأثيرات البصرية</div>
+          <div class="tgg"><span class="tgl">نتوء (Vignette)</span><label class="tg"><input type="checkbox" id="fx-vig"><span class="tgs"></span></label></div>
+          <div class="fg" style="padding-top:3px"><div class="sg"><input type="range" min="0" max="100" value="55" id="vig-str"><span class="sv" id="vig-str-v">55%</span></div></div>
+          <div class="tgg"><span class="tgl">حبوب فيلم (Grain)</span><label class="tg"><input type="checkbox" id="fx-grain"><span class="tgs"></span></label></div>
+          <div class="tgg"><span class="tgl">إطار ذهبي متوهج</span><label class="tg"><input type="checkbox" id="fx-gold"><span class="tgs"></span></label></div>
+          <div class="fg" id="gold-col-row" style="padding-top:3px"><label class="fl">لون الإطار</label><div class="cpg"><input type="color" id="gold-col" value="#f0c842"></div></div>
+          <div class="tgg"><span class="tgl">نجوم متلألئة</span><label class="tg"><input type="checkbox" id="fx-stars"><span class="tgs"></span></label></div>
+          <div class="tgg"><span class="tgl">أشعة نورانية</span><label class="tg"><input type="checkbox" id="fx-rays"><span class="tgs"></span></label></div>
+          <div class="tgg"><span class="tgl">ضبابية بوكيه</span><label class="tg"><input type="checkbox" id="fx-bokeh"><span class="tgs"></span></label></div>
+
+          <!-- تأثيرات إضافية جديدة -->
+          <div class="sec-t" style="margin-top:10px">🆕 تأثيرات إضافية</div>
+          <div class="tgg"><span class="tgl">Pixelate (تقطيع)</span><label class="tg"><input type="checkbox" id="fx-pixel"><span class="tgs"></span></label></div>
+          <div class="sg" style="margin-bottom:5px"><input type="range" min="2" max="20" value="8" id="pixel-size"><span class="sv" id="pixel-size-v">8</span></div>
+
+          <div class="tgg"><span class="tgl">Mosaic (فسيفساء)</span><label class="tg"><input type="checkbox" id="fx-mosaic"><span class="tgs"></span></label></div>
+          <div class="sg" style="margin-bottom:5px"><input type="range" min="2" max="30" value="10" id="mosaic-size"><span class="sv" id="mosaic-size-v">10</span></div>
+
+          <div class="tgg"><span class="tgl">Ripple (تموج)</span><label class="tg"><input type="checkbox" id="fx-ripple"><span class="tgs"></span></label></div>
+          <div class="sg" style="margin-bottom:5px"><input type="range" min="1" max="20" value="5" id="ripple-amp"><span class="sv" id="ripple-amp-v">5</span></div>
+
+          <div class="tgg"><span class="tgl">Wave (موجة بصرية)</span><label class="tg"><input type="checkbox" id="fx-wave"><span class="tgs"></span></label></div>
+          <div class="sg" style="margin-bottom:5px"><input type="range" min="1" max="30" value="10" id="wave-amp"><span class="sv" id="wave-amp-v">10</span></div>
+
+          <div class="tgg"><span class="tgl">Swirl (دوامة)</span><label class="tg"><input type="checkbox" id="fx-swirl"><span class="tgs"></span></label></div>
+          <div class="sg" style="margin-bottom:5px"><input type="range" min="1" max="10" value="3" id="swirl-factor"><span class="sv" id="swirl-factor-v">3</span></div>
+
+          <div class="tgg"><span class="tgl">Kaleidoscope (موشور)</span><label class="tg"><input type="checkbox" id="fx-kaleido"><span class="tgs"></span></label></div>
+          <div class="sg" style="margin-bottom:5px"><input type="range" min="3" max="12" value="6" id="kaleido-segments"><span class="sv" id="kaleido-segments-v">6</span></div>
+
+          <div class="tgg"><span class="tgl">Glitch (تشويش رقمي)</span><label class="tg"><input type="checkbox" id="fx-glitch"><span class="tgs"></span></label></div>
+          <div class="sg" style="margin-bottom:5px"><input type="range" min="1" max="20" value="5" id="glitch-intensity"><span class="sv" id="glitch-intensity-v">5</span></div>
+
+          <div class="tgg"><span class="tgl">Old Film (فيلم قديم)</span><label class="tg"><input type="checkbox" id="fx-oldfilm"><span class="tgs"></span></label></div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">🔄 انتقالات الآيات <span class="note" style="font-weight:normal">(مرتبط بـ "ظهور الآيات" في تبويب النصوص)</span></div>
+          <div class="rg c2">
+            <div class="rc"><input type="radio" name="tanim" id="ta0b" value="none"><label for="ta0b"><span class="ri">⚡</span><span>مباشر</span></label></div>
+            <div class="rc"><input type="radio" name="tanim" id="ta1b" value="fade"><label for="ta1b"><span class="ri">🌅</span><span>تلاشي</span></label></div>
+            <div class="rc"><input type="radio" name="tanim" id="ta2b" value="slide"><label for="ta2b"><span class="ri">➡️</span><span>انزلاق</span></label></div>
+            <div class="rc"><input type="radio" name="tanim" id="ta3b" value="zoom"><label for="ta3b"><span class="ri">🔍</span><span>تكبير</span></label></div>
+            <div class="rc"><input type="radio" name="tanim" id="ta5b" value="drop"><label for="ta5b"><span class="ri">⬇️</span><span>سقوط</span></label></div>
+            <div class="rc"><input type="radio" name="tanim" id="ta6b" value="rise"><label for="ta6b"><span class="ri">⬆️</span><span>صعود</span></label></div>
+            <div class="rc"><input type="radio" name="tanim" id="ta7b" value="blur"><label for="ta7b"><span class="ri">🌫️</span><span>ضبابي</span></label></div>
+            <div class="rc"><input type="radio" name="tanim" id="ta8b" value="glow"><label for="ta8b"><span class="ri">✨</span><span>توهج</span></label></div>
+            <div class="rc"><input type="radio" name="tanim" id="ta4b" value="word"><label for="ta4b"><span class="ri">📿</span><span>كلمة-بكلمة</span></label></div>
+            <div class="rc"><input type="radio" name="tanim" id="ta9b" value="mix"><label for="ta9b"><span class="ri">🎲</span><span>مختلط</span></label></div>
+          </div>
+          <div class="mix-anims-ctrl" style="display:none;margin-top:8px;padding:7px;background:var(--bg3);border:1px solid var(--b1);border-radius:var(--r)">
+            <div class="note" style="margin-bottom:5px">اختر التأثيرات (الترتيب حسب الاختيار):</div>
+            <div class="rg c2">
+              <label class="tgg" style="cursor:pointer"><input type="checkbox" class="mix-anim" value="fade"><span class="tgl"><span class="mix-num"></span> 🌅 تلاشي</span></label>
+              <label class="tgg" style="cursor:pointer"><input type="checkbox" class="mix-anim" value="slide"><span class="tgl"><span class="mix-num"></span> ➡️ انزلاق</span></label>
+              <label class="tgg" style="cursor:pointer"><input type="checkbox" class="mix-anim" value="zoom"><span class="tgl"><span class="mix-num"></span> 🔍 تكبير</span></label>
+              <label class="tgg" style="cursor:pointer"><input type="checkbox" class="mix-anim" value="drop"><span class="tgl"><span class="mix-num"></span> ⬇️ سقوط</span></label>
+              <label class="tgg" style="cursor:pointer"><input type="checkbox" class="mix-anim" value="rise"><span class="tgl"><span class="mix-num"></span> ⬆️ صعود</span></label>
+              <label class="tgg" style="cursor:pointer"><input type="checkbox" class="mix-anim" value="blur"><span class="tgl"><span class="mix-num"></span> 🌫️ ضبابي</span></label>
+              <label class="tgg" style="cursor:pointer"><input type="checkbox" class="mix-anim" value="glow"><span class="tgl"><span class="mix-num"></span> ✨ توهج</span></label>
+              <label class="tgg" style="cursor:pointer"><input type="checkbox" class="mix-anim" value="word"><span class="tgl"><span class="mix-num"></span> 📿 كلمة-بكلمة</span></label>
+            </div>
+            <div class="note mix-anims-summary" style="margin-top:5px;color:var(--pl)">— اختر تأثيراً أو أكثر —</div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">🎨 طبقة لونية</div>
+          <div class="grid2">
+            <div class="fg"><label class="fl">اللون</label><div class="cpg"><input type="color" id="ov-col" value="#000000"></div></div>
+            <div class="fg"><label class="fl">الشفافية</label><div class="sg"><input type="range" min="0" max="70" value="0" id="ov-op"><span class="sv" id="ov-op-v">0%</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TEMPLATES -->
+      <div class="tp" id="tab-tpl">
+        <div class="sec">
+          <div class="sec-t">📂 القوالب المحفوظة</div>
+          <div class="tpl-grid" id="tpl-grid"></div>
+          <p id="tpl-empty" style="display:none;text-align:center;color:var(--t3);font-size:10px;padding:14px 0">لا توجد قوالب بعد</p>
+        </div>
+        <button class="btn btn-a bfw" id="open-tpl-modal-from-tab">➕ حفظ الإعدادات الحالية</button>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="tp" id="tab-settings">
+        <div class="sec">
+          <div class="sec-t">🎯 قالب جاهز للمنصة</div>
+          <div class="fg">
+            <select class="fc" id="preset-sel">
+              <option value="">— اختر قالباً —</option>
+              <optgroup label="📱 ريلز / شورتس / تيك توك (9:16)">
+                <option value="reel-fhd">Reels/Shorts/TikTok — 1080×1920 Full HD</option>
+                <option value="reel-hd">Reels — 720×1280 سريع</option>
+              </optgroup>
+              <optgroup label="💻 يوتيوب أفقي (16:9)">
+                <option value="yt-fhd">YouTube — 1920×1080 Full HD</option>
+                <option value="yt-hd">YouTube — 1280×720 HD</option>
+              </optgroup>
+              <optgroup label="🟦 انستجرام مربع (1:1)">
+                <option value="ig-sq">Instagram Square — 1080×1080</option>
+              </optgroup>
+              <optgroup label="📸 انستجرام عمودي (4:5)">
+                <option value="ig-port">Instagram Portrait — 1080×1350</option>
+              </optgroup>
+              <optgroup label="🎬 سينمائي">
+                <option value="cinema">Cinema 21:9 — 2560×1080</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="note">القالب يضبط الأبعاد + FPS + جودة التصدير دفعةً واحدة. يُمكن تعديل القيم يدوياً بعدها.</div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">🎬 جودة التصدير</div>
+          <div class="fg"><label class="fl">دقة الفيديو</label>
+            <select class="fc" id="export-res">
+              <option value="720">720p (HD)</option>
+              <option value="1080" selected>1080p (Full HD)</option>
+              <option value="1920">1920×1080 (مخصص)</option>
+            </select>
+          </div>
+          <div class="fg"><label class="fl">معدل الإطارات (FPS)</label>
+            <select class="fc" id="export-fps">
+              <option value="24">24 fps (سينما)</option>
+              <option value="30" selected>30 fps (قياسي)</option>
+              <option value="60">60 fps (سلس)</option>
+            </select>
+          </div>
+          <div class="fg"><label class="fl">جودة الصورة (Mbps)</label>
+            <div class="sg"><input type="range" min="2" max="20" value="8" id="export-vbr"><span class="sv" id="export-vbr-v">8 Mbps</span></div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">📐 نسبة العرض</div>
+          <div class="rcg" id="ratio-grp">
+            <input type="radio" name="ratio" id="r-916" value="9:16" checked><label for="r-916">📱 9:16 ريلز</label>
+            <input type="radio" name="ratio" id="r-11" value="1:1"><label for="r-11">🟦 1:1 مربع</label>
+            <input type="radio" name="ratio" id="r-169" value="16:9"><label for="r-169">🖥️ 16:9 يوتيوب</label>
+            <input type="radio" name="ratio" id="r-45" value="4:5"><label for="r-45">📸 4:5 انستجرام</label>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">🔊 الصوت عند المعاينة</div>
+          <div class="tgg"><span class="tgl">تشغيل الصوت تلقائياً</span><label class="tg"><input type="checkbox" id="auto-play-audio" checked><span class="tgs"></span></label></div>
+          <div class="tgg"><span class="tgl">إظهار مؤشر الصوت</span><label class="tg"><input type="checkbox" id="show-audio-status" checked><span class="tgs"></span></label></div>
+          <div class="tgg">
+            <span class="tgl">🔇 كتم الصوت تلقائياً عند التصدير</span>
+            <label class="tg"><input type="checkbox" id="mute-on-export"><span class="tgs"></span></label>
+          </div>
+          <span class="note" style="display:block;margin-top:2px">يطبَّق على المسار القديم (MediaRecorder)؛ V2 يخلط الصوت offline ويبقى صامتاً</span>
+        </div>
+        <div class="sec">
+          <div class="sec-t">📱 عرض الأدوات (موبايل)</div>
+          <div class="fg"><label class="fl">الحجم الافتراضي للأدوات</label>
+            <select class="fc" id="panel-default-size">
+              <option value="50">50٪ من الشاشة</option>
+              <option value="62" selected>62٪ من الشاشة</option>
+              <option value="75">75٪ من الشاشة</option>
+            </select>
+          </div>
+          <div class="tgg"><span class="tgl">فتح الأدوات تلقائياً عند التشغيل</span><label class="tg"><input type="checkbox" id="auto-open-panel"><span class="tgs"></span></label></div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">🗑️ إعادة الضبط</div>
+          <button class="btn btn-d bfw" id="reset-settings-btn">⚠️ إعادة جميع الإعدادات للافتراضي</button>
+        </div>
+      </div>
+
+      <!-- ABOUT -->
+      <div class="tp" id="tab-about">
+        <div class="about-logo">
+          <img src="GT-SQR-icons/all/256x256/gt-sqr-icon.png" class="al-icon" alt="GT-SQR" style="width:80px;height:80px;">
+          <h2>GT-SQR</h2>
+          <p>GnuTux Short Quran Reels v3.0</p>
+        </div>
+        <div class="sec">
+          <div class="sec-t">📋 المشروع</div>
+          <div class="info-row"><span class="info-k">الإصدار</span><span class="info-v">3.0.0</span></div>
+          <div class="info-row"><span class="info-k">المطور</span><span class="info-v"><a href="https://github.com/SalehGnuTux" target="_blank">@SalehGnuTux</a></span></div>
+          <div class="info-row"><span class="info-k">المستودع</span><span class="info-v"><a href="https://github.com/SalehGnuTux/GT-SQR" target="_blank">GitHub/GT-SQR</a></span></div>
+          <div class="info-row"><span class="info-k">الرخصة</span><span class="info-v">GPLv3</span></div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">🔌 المصادر</div>
+          <div class="info-row"><span class="info-k">القرآن</span><span class="info-v"><a href="https://api.alquran.cloud" target="_blank">AlQuran Cloud</a></span></div>
+          <div class="info-row"><span class="info-k">الصوت</span><span class="info-v"><a href="https://everyayah.com" target="_blank">EveryAyah.com</a></span></div>
+          <div class="info-row"><span class="info-k">الخطوط</span><span class="info-v">Google Fonts + محلي</span></div>
+          <div class="info-row"><span class="info-k">PWA Offline</span><span class="info-v">✅ Service Worker</span></div>
+        </div>
+        <div class="credits">بُني بـ ❤️ لخدمة القرآن الكريم<br><a href="https://github.com/SalehGnuTux/GT-SQR" target="_blank">⭐ GitHub</a></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div id="preview">
+    <div class="cw" id="cw">
+      <canvas id="cv"></canvas>
+      <div class="fmt-lbl" id="fmt-lbl">9:16</div>
+    </div>
+    <div class="pbar-wrap">
+      <div class="progrow">
+        <button class="pbtn" id="btn-play">▶️</button>
+        <div class="pbar" id="pbar"><div class="pfill" id="pfill"></div></div>
+        <span class="ptime" id="ptime">0:00 / 0:00</span>
+      </div>
+      <div class="pbtns">
+        <button class="pbtn" id="next-aya-btn" title="الآية التالية">⏭</button>
+        <button class="pbtn" id="prev-aya-btn" title="الآية السابقة">⏮</button>
+        <div class="aya-ind" id="aya-ind">الآية 1/7</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="exbar">
+  <div class="ex-info" id="ex-info">جاهز • يتضمن التصدير صوت القرآن وصوت الخلفية بمدة دقيقة</div>
+  <button class="btn btn-g bsm" id="mute-preview-btn" title="كتم/رفع الصوت">🔊</button>
+  <button class="btn btn-g bsm" id="toggle-play-btn">👁️ <span>معاينة</span></button>
+  <button class="btn btn-p bsm" id="export-webm-btn">🎬 <span>WebM</span></button>
+  <button class="btn btn-a" id="export-mp4-btn">📥 MP4</button>
+</div>
+
+<!-- شريط تثبيت PWA -->
+<div id="pwa-bar">
+  <img src="GT-SQR-icons/all/192x192/gt-sqr-icon.png" class="pwa-icon" alt="GT-SQR"
+       onerror="this.style.display='none'">
+  <div class="pwa-txt">
+    <strong>تثبيت GT-SQR</strong>
+    <small>استخدمه بدون إنترنت · أيقونة في الشاشة الرئيسية</small>
+  </div>
+  <div class="pwa-btns">
+    <button class="btn btn-a bsm" id="install-pwa-btn">📥 تثبيت</button>
+    <button class="btn btn-g bsm" id="hide-pwa-banner-btn">✕</button>
+  </div>
+</div>
+
+<!-- WebCodecs muxers — classic scripts للعمل تحت file:// (بدون HTTP server) -->
+<script src="mp4-muxer.js"></script>
+<script src="webm-muxer.js"></script>
+<script src="export-engine-web.js"></script>
+<script src="fonts-data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
